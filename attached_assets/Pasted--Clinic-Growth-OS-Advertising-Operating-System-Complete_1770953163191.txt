@@ -1,0 +1,358 @@
+# Clinic Growth OS — Advertising Operating System
+## Complete Build Plan
+
+---
+
+## PRODUCT VISION
+
+**One sentence:** The tool that makes it almost impossible for clinics to fail with their advertising.
+
+**The gap:** Kong does creatives. Lovart does images. AdCreative does copy. Nobody holds a clinic owner's hand from "I have a service" all the way through "I'm scaling at $15 CPL and know exactly why."
+
+**5 Modules:**
+1. **Offer Intelligence Engine** — Score, fix, and optimize offers before spending a dollar
+2. **Avatar & Creative Factory** — Generate 50+ ads with images at scale (Lovart-style batch generation)
+3. **Campaign Architect** — IKEA-instructions for Facebook Ads Manager setup
+4. **Metrics Command Center + AI Ad Coach** — Daily pulse, weekly briefs, proactive alerts, chat coach
+5. **Iteration Engine** — Auto-generate winner variations, diagnose losers, never stop improving
+
+---
+
+## PHASE 0: VALIDATE INTEGRATIONS (Days 1–2)
+
+**Goal:** Confirm every external dependency works before writing a line of code.
+
+### Checklist
+
+| Check | Action | Status |
+|-------|--------|--------|
+| **Database schema** | Finalize tables: `offers`, `campaigns`, `avatars`, `creatives`, `metrics`, `iterations`, `coaching_sessions` | ☐ |
+| **Anthropic API** | Confirm API key, test structured JSON output with Claude Sonnet | ☐ |
+| **Image Generation API** | Choose provider: Replicate (Flux), DALL-E 3, or Stability AI. Verify API keys, test batch generation, confirm rate limits | ☐ |
+| **Facebook Ads API** | Confirm access credentials, test read permissions for campaign metrics, verify rate limits | ☐ |
+| **n8n (drleadflow)** | Confirm webhook endpoints, test cron scheduling, verify GoHighLevel connection | ☐ |
+| **GoHighLevel** | Confirm contact tagging, SMS/email automation triggers, webhook receivers | ☐ |
+| **Web scraping** | Test competitor research capability (Apify or direct scraping for local clinic offers) | ☐ |
+
+### Deliverable
+One document: **Integration Map** — every external connection with endpoint, credentials location, rate limits, and fallback plan.
+
+---
+
+## PHASE 1: CONTEXT LAYER (Days 3–7)
+
+**Goal:** Build the knowledge base that makes every AI output healthcare-specific, not generic.
+
+These are the reference documents the AI uses as context when generating outputs. This is your competitive moat — generic tools use generic prompts. Your tool uses battle-tested healthcare advertising frameworks.
+
+### Files to Create
+
+| File | Purpose | Source |
+|------|---------|--------|
+| `context/healthcare_offer_frameworks.md` | Proven offer structures for clinics: risk reversal patterns, guarantee frameworks, urgency triggers, pricing psychology for healthcare | Your existing client work + research |
+| `context/hyperdopamine_frameworks.md` | The 5 ad style frameworks (Breaking News, Pattern Interrupt, Native Highlight, Native Social Post, Revealed/Location) with full templates | Your `hyperdopamine-ad-master-template.md` — already done |
+| `context/ad_copy_formulas.md` | The 5 copy formulas (Story Arc, Revelation, Before/After Bridge, Calculator, Text Message) with healthcare examples | Your `ad-copy-master.md` — already done |
+| `context/healthcare_cpl_benchmarks.md` | CPL ranges by vertical: med spa ($15-45), dental ($20-60), IV therapy ($12-35), weight loss ($18-50), wellness ($15-40). Include CTR benchmarks, frequency thresholds, ROAS targets | Your client data + industry research |
+| `context/avatar_libraries.md` | Complete avatar libraries by vertical: med spa (7 avatars), dental (6), IV therapy (8), B2B/AI (6), fitness (6). Each with situation, 3 emotions, 3 hooks | Your master template — already done |
+| `context/campaign_structure_templates.md` | Facebook Ads campaign structures: avatar test structure, emotion test structure, style test structure. Budget allocation formulas, kill criteria, scale criteria | Your methodology |
+| `context/metrics_interpretation_rules.md` | Decision rules: "If CPL > benchmark by 50% after 3 days and 1000+ impressions, kill." "If frequency > 3.0, rotate creative." "If CTR < 1% after 500 impressions, the hook is weak." | Your advertising experience |
+| `context/competitor_analysis_framework.md` | How to analyze competitor offers: what to look for in their ads, landing pages, pricing, guarantees, positioning | Your research methodology |
+
+### Why This Matters
+Without these context files, the AI generates generic marketing advice. With them, it generates advice that sounds like YOU — the Doctor Lead Flow methodology. Every prompt in Phase 2 references these context files.
+
+---
+
+## PHASE 2: HARD PROMPTS (Days 8–12)
+
+**Goal:** Define every AI task with explicit input/output schemas. No ambiguity.
+
+Each "hard prompt" is a structured template that takes specific inputs and produces specific outputs in JSON format. These become the backbone of every tool in Phase 3.
+
+### Module 1: Offer Intelligence
+
+| Hard Prompt | Input | Output |
+|-------------|-------|--------|
+| `prompts/offer_scoring.md` | `{ service, price, market, location, current_offer, differentiator }` | `{ overall_score: 1-10, breakdown: { clarity: X, urgency: X, risk_reversal: X, specificity: X, value_perception: X }, weaknesses: [...], strengths: [...], verdict: "string" }` |
+| `prompts/offer_variations.md` | `{ scored_offer, weaknesses, market_context }` | `{ variations: [{ offer_text, projected_score, reasoning, risk_level }] }` — 3-5 ranked alternatives |
+| `prompts/competitor_analysis.md` | `{ location, service_type, scraped_competitor_data }` | `{ competitors: [{ name, offer_summary, strengths, weaknesses, differentiation_opportunity }], market_temperature: "red_ocean/blue_ocean/mixed", recommended_angles: [...] }` |
+
+### Module 2: Creative Factory
+
+| Hard Prompt | Input | Output |
+|-------------|-------|--------|
+| `prompts/avatar_generation.md` | `{ clinic_type, service, target_market, offer }` | `{ avatars: [{ name, situation, demographics, psychographics, emotions: { negative, transition, positive }, hooks: { pain, shift, outcome }, objections, buying_triggers }] }` — 5-8 avatars |
+| `prompts/creative_copy.md` | `{ avatar, emotion, style_framework, offer, clinic_info }` | `{ primary_text, headline, description, cta_button, hook_angle, copy_formula_used }` |
+| `prompts/image_prompt.md` | `{ avatar, emotion, style_framework, headline, clinic_type }` | `{ image_prompt, negative_prompt, aspect_ratio, style_preset, text_overlay_positions: [{ text, position, font_size, color }] }` |
+| `prompts/testing_matrix.md` | `{ creatives_list, budget }` | `{ phases: [{ phase_name, ad_sets: [{ name, creative_ids, budget, duration, kill_criteria, scale_criteria }] }] }` |
+
+### Module 3: Campaign Architect
+
+| Hard Prompt | Input | Output |
+|-------------|-------|--------|
+| `prompts/campaign_structure.md` | `{ approved_creatives, budget, goal, location, audience_info }` | `{ campaigns: [{ name, objective, ad_sets: [{ name, budget, targeting: { age, gender, interests, locations, exclusions }, creatives: [...], schedule }] }] }` |
+| `prompts/deployment_checklist.md` | `{ campaign_structure }` | `{ steps: [{ step_number, screen: "Campaign Level/Ad Set Level/Ad Level", action, details, screenshot_reference, common_mistakes }] }` |
+
+### Module 4: Metrics Coach
+
+| Hard Prompt | Input | Output |
+|-------------|-------|--------|
+| `prompts/daily_pulse.md` | `{ today_metrics, yesterday_metrics, benchmarks, active_campaigns }` | `{ summary, winners: [...], losers: [...], actions: [{ priority, action, reasoning }], alert_level: "green/yellow/red" }` |
+| `prompts/weekly_brief.md` | `{ weekly_metrics, previous_week_metrics, benchmarks, campaign_history }` | `{ executive_summary, performance_by_ad_set: [...], recommendations: [{ action, expected_impact, priority }], next_week_plan, new_creatives_suggested: [...] }` |
+| `prompts/ad_coach_chat.md` | `{ user_message, clinic_context, campaign_data, conversation_history }` | `{ response, data_referenced, confidence_level, follow_up_questions }` |
+| `prompts/proactive_alert.md` | `{ trigger_type, metric_data, thresholds }` | `{ alert_title, severity, explanation, recommended_action, one_click_action }` |
+
+### Module 5: Iteration Engine
+
+| Hard Prompt | Input | Output |
+|-------------|-------|--------|
+| `prompts/winner_variation.md` | `{ winning_creative, performance_data, what_to_vary }` | `{ variations: [{ copy, image_prompt, what_changed, hypothesis }] }` — 5 variations |
+| `prompts/loser_diagnosis.md` | `{ failing_creative, metrics, benchmarks, campaign_context }` | `{ diagnosis, likely_failure_point: "hook/copy/image/targeting/offer", evidence, fix_options: [{ approach, new_creative, expected_improvement }] }` |
+
+---
+
+## PHASE 3: TOOLS (Days 13–34, ~3 weeks)
+
+**Goal:** Build every tool. Reuse existing infrastructure first, create only what's missing.
+
+### Module 1 Tools: Offer Intelligence
+
+| Tool | Type | Implementation Notes |
+|------|------|---------------------|
+| `tools/offer_scorer.py` | **Create** | Deterministic scoring logic (check for risk reversal presence, specificity, urgency, price anchoring) + LLM interpretation using `offer_scoring.md` prompt. Score is 60% deterministic, 40% LLM assessment. |
+| `tools/competitor_researcher.py` | **Extend** | Use Apify or extend existing scraper. Input: location + service type. Scrape Google Maps listings, Facebook Ad Library for competitors in same area. Extract: offer text, pricing signals, ad creative patterns. |
+| `tools/offer_rewriter.py` | **Create** | Takes scored offer + weaknesses → calls LLM with `offer_variations.md` prompt → returns 3-5 ranked alternatives. Uses healthcare_offer_frameworks.md as context. |
+
+### Module 2 Tools: Creative Factory
+
+| Tool | Type | Implementation Notes |
+|------|------|---------------------|
+| `tools/avatar_generator.py` | **Create** | LLM call with `avatar_generation.md` prompt + `avatar_libraries.md` context. Generates 5-8 avatars. Stores in database with full emotional mapping. |
+| `tools/copy_generator.py` | **Extend** | Based on existing script_generator pattern. Takes avatar + emotion + style → generates ad copy using `creative_copy.md` prompt + `ad_copy_formulas.md` context. Batch mode: generate for all avatar/emotion/style combinations. |
+| `tools/image_prompt_generator.py` | **Create** | Takes creative data → generates detailed image prompts using `image_prompt.md` prompt + `hyperdopamine_frameworks.md` context. Output includes negative_prompt, text_overlay_positions. |
+| `tools/image_batch_generator.py` | **Create** | Direct API integration with chosen provider (Replicate/DALL-E/Stability). **Key feature: batch generation with dropdown selector (1, 3, 5, 10, 15, 25 images at a time).** Queue system: submit batch → poll for completion → store results. Rate limiting built in. |
+| `tools/testing_matrix_generator.py` | **Create** | Takes all creatives → organizes into 3-phase testing structure using `testing_matrix.md` prompt. Phase 1: avatar test. Phase 2: emotion test within winner. Phase 3: style test within winner. Includes budget allocation and kill/scale criteria. |
+
+### Module 3 Tools: Campaign Architect
+
+| Tool | Type | Implementation Notes |
+|------|------|---------------------|
+| `tools/campaign_blueprint_generator.py` | **Create** | Deterministic campaign structure (naming conventions, budget splits) + LLM audience mapping using `campaign_structure.md` prompt. Output: complete JSON blueprint ready for Facebook Ads API or manual setup. |
+| `tools/deployment_guide_generator.py` | **Create** | Takes blueprint → generates step-by-step deployment checklist using `deployment_checklist.md` prompt. Export as PDF with visual callouts for each Facebook Ads Manager screen. |
+| `tools/facebook_ads_exporter.py` | **Create** | Takes blueprint → generates Facebook Ads Manager bulk import CSV + ZIP of creative assets. Proper naming convention: `{campaign}_{avatar}_{emotion}_{style}_{variation}`. |
+
+### Module 4 Tools: Metrics Coach
+
+| Tool | Type | Implementation Notes |
+|------|------|---------------------|
+| `tools/metrics_analyzer.py` | **Create** | Core deterministic logic: pull metrics from Facebook Ads API (or manual input), calculate CPL, CTR, frequency, ROAS, CPC. Compare against benchmarks from `healthcare_cpl_benchmarks.md`. Flag anomalies. Pure code — no LLM needed for the math. |
+| `tools/daily_pulse.py` | **Create** | Calls `metrics_analyzer.py` → feeds results to LLM with `daily_pulse.md` prompt → generates natural language daily summary with specific actions. Triggered by n8n cron at 6am. |
+| `tools/weekly_brief.py` | **Create** | Calls `metrics_analyzer.py` for 7-day window → feeds to LLM with `weekly_brief.md` prompt → generates comprehensive weekly report with next-week plan. Triggered by n8n cron Monday 8am. |
+| `tools/ad_coach_chat.py` | **Create** | Conversational AI using `ad_coach_chat.md` prompt. Context: clinic info from memory, campaign data from metrics_analyzer, conversation history. This is the "Ask Your Ad Coach" feature. Responds to natural language questions about their campaigns. |
+| `tools/proactive_alerter.py` | **Create** | Runs after every metrics pull. Checks: frequency > 3.0? CPL > benchmark by 50%? No check-in > 4 days? CTR dropped > 30% day-over-day? Triggers LLM with `proactive_alert.md` prompt → sends notification via GoHighLevel SMS/email or in-app. |
+
+### Module 5 Tools: Iteration Engine
+
+| Tool | Type | Implementation Notes |
+|------|------|---------------------|
+| `tools/winner_variation_generator.py` | **Create** | Takes winning creative + performance data → generates 5 variations using `winner_variation.md` prompt. Variations: same avatar/different hook, same hook/different image style, longer vs shorter copy, different CTA, different emotion within same avatar. |
+| `tools/loser_diagnosis.py` | **Create** | Takes failing creative + metrics → diagnoses failure point using `loser_diagnosis.md` prompt. Identifies whether the hook, copy, image, targeting, or offer is the problem. Suggests specific fixes with new creative drafts. |
+| `tools/ab_test_recommender.py` | **Create** | After iteration, recommends the next test to run based on the testing hierarchy: avatar → emotion → style → hook → copy length → CTA. Prevents random testing and enforces systematic optimization. |
+
+### Integration Tool (Spans All Modules)
+
+| Tool | Type | Implementation Notes |
+|------|------|---------------------|
+| `tools/command_center_integration.py` | **Extend** | Add schemas for: offers (score, variations, status), creatives (copy, image, approval status), campaigns (structure, deployment status), metrics (daily snapshots), iterations (winner/loser tracking). Wire all module outputs to Command Center for unified view. |
+
+---
+
+## PHASE 4: GOALS (Days 35–41, ~1 week)
+
+**Goal:** One goal file per module. Each goal orchestrates the tools from Phase 3 into end-to-end workflows.
+
+### Goal Files
+
+| Goal | File | Workflow |
+|------|------|----------|
+| **Module 1** | `goals/offer_intelligence.md` | 1. User inputs offer details → 2. `offer_scorer` scores it → 3. `competitor_researcher` pulls local market data → 4. `offer_rewriter` generates 3-5 variations → 5. Results displayed with scores, weaknesses, competitor comparison, recommended offer |
+| **Module 2** | `goals/creative_factory.md` | 1. User confirms offer → 2. `avatar_generator` creates 5-8 avatars → 3. User selects avatars + styles → 4. `copy_generator` batch generates all copy → 5. `image_prompt_generator` creates all prompts → 6. `image_batch_generator` generates images (user selects quantity: 5/10/15/25) → 7. `testing_matrix_generator` organizes into testing phases → 8. Results in creative library with approval workflow |
+| **Module 3** | `goals/campaign_architect.md` | 1. User approves creatives from library → 2. `campaign_blueprint_generator` creates Facebook structure → 3. `deployment_guide_generator` creates step-by-step checklist → 4. `facebook_ads_exporter` generates import CSV + asset ZIP → 5. User gets downloadable deployment package |
+| **Module 4** | `goals/metrics_coach.md` | 1. Metrics pulled (API or manual) → 2. `metrics_analyzer` processes numbers → 3. `daily_pulse` generates morning summary → 4. `proactive_alerter` checks for issues → 5. `weekly_brief` generates Monday report → 6. `ad_coach_chat` available 24/7 for questions → 7. All outputs pushed via GoHighLevel notifications |
+| **Module 5** | `goals/iteration_engine.md` | 1. `metrics_analyzer` identifies winners and losers → 2. Winners → `winner_variation_generator` creates 5 new variations → 3. Losers → `loser_diagnosis` identifies failure point and suggests fixes → 4. `ab_test_recommender` recommends next test → 5. New creatives feed back into Module 2 library |
+
+---
+
+## PHASE 5: COMMAND CENTER + N8N (Days 42–55, ~2 weeks)
+
+### Command Center (Web UI)
+
+**Database Tables to Add:**
+
+```sql
+-- Offers
+CREATE TABLE offers (
+  id UUID PRIMARY KEY,
+  campaign_id UUID REFERENCES campaigns(id),
+  service TEXT,
+  price TEXT,
+  original_offer TEXT,
+  score INTEGER,                    -- 1-10
+  score_breakdown JSONB,            -- { clarity, urgency, risk_reversal, specificity, value_perception }
+  weaknesses TEXT[],
+  strengths TEXT[],
+  variations JSONB,                 -- [{ offer_text, projected_score, reasoning }]
+  competitor_data JSONB,            -- [{ name, offer_summary, strengths, weaknesses }]
+  market_temperature VARCHAR(20),   -- red_ocean / blue_ocean / mixed
+  selected_variation INTEGER,       -- which variation the user chose
+  status VARCHAR(20) DEFAULT 'draft',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Metrics Snapshots (daily)
+CREATE TABLE metrics_snapshots (
+  id UUID PRIMARY KEY,
+  campaign_id UUID REFERENCES campaigns(id),
+  date DATE,
+  ad_set_name TEXT,
+  creative_id UUID REFERENCES creatives(id),
+  impressions INTEGER,
+  clicks INTEGER,
+  leads INTEGER,
+  spend DECIMAL,
+  cpl DECIMAL,
+  ctr DECIMAL,
+  cpc DECIMAL,
+  frequency DECIMAL,
+  roas DECIMAL,
+  raw_data JSONB,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Coaching Sessions
+CREATE TABLE coaching_sessions (
+  id UUID PRIMARY KEY,
+  campaign_id UUID REFERENCES campaigns(id),
+  session_type VARCHAR(20),        -- daily_pulse / weekly_brief / chat / alert
+  content JSONB,                    -- the generated coaching output
+  actions_taken JSONB,              -- what the user did in response
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Iterations
+CREATE TABLE iterations (
+  id UUID PRIMARY KEY,
+  campaign_id UUID REFERENCES campaigns(id),
+  source_creative_id UUID REFERENCES creatives(id),
+  iteration_type VARCHAR(20),       -- winner_variation / loser_fix / ab_test
+  diagnosis JSONB,                  -- why the source won or lost
+  new_creatives UUID[],             -- generated variation IDs
+  performance_delta JSONB,          -- before/after metrics comparison
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+**UI Tabs / Views:**
+
+| Tab | What It Shows |
+|-----|---------------|
+| **Offer Lab** | Offer score dashboard, variation cards, competitor landscape, "Accept Offer" button to proceed to creatives |
+| **Creative Factory** | Avatar cards with emotional maps, creative generation controls, image batch queue (dropdown: generate 5/10/15/25), creative library grid with approve/reject, testing matrix view |
+| **Campaign HQ** | Blueprint visualization (campaign → ad sets → ads tree view), deployment checklist with checkboxes, export buttons (CSV, PDF, ZIP) |
+| **Ad Coach** | Daily pulse card (today's summary), weekly brief (expandable), alert feed (newest first), chat interface ("Ask your Ad Coach"), metrics charts (CPL trend, CTR trend, spend/leads) |
+| **Iteration Lab** | Winners board (top performers with "Generate Variations" button), Losers board (underperformers with "Diagnose" button), test queue (recommended next tests), performance timeline (how iterations improved results over time) |
+
+### N8N Workflows (drleadflow instance)
+
+| Workflow | Trigger | Steps | Output |
+|----------|---------|-------|--------|
+| **Daily Metrics Pulse** | Cron: 6:00 AM daily | 1. Pull Facebook Ads API metrics → 2. POST to metrics_analyzer endpoint → 3. POST to daily_pulse endpoint → 4. Check proactive_alerter thresholds → 5. Send summary via GoHighLevel SMS/email | Daily coaching message to clinic owner |
+| **Weekly Strategy Brief** | Cron: Monday 8:00 AM | 1. Pull 7-day Facebook Ads API metrics → 2. POST to weekly_brief endpoint → 3. Generate new creative suggestions if needed → 4. Send report via GoHighLevel email | Weekly strategy email with PDF attachment |
+| **Ad Coach Webhook** | POST webhook | 1. Receive user message → 2. Load clinic context + campaign data → 3. POST to ad_coach_chat endpoint → 4. Return response | Real-time chat response |
+| **Proactive Alert Dispatcher** | After Daily Metrics Pulse | 1. Check: frequency > 3.0? → 2. Check: CPL > 150% of benchmark? → 3. Check: CTR drop > 30%? → 4. Check: no login > 4 days? → 5. If any trigger: POST to proactive_alert endpoint → 6. Send via GoHighLevel with one-click action link | Push notification / SMS alert |
+| **Winner Detection** | After Daily Metrics Pulse | 1. Identify creatives with CPL < benchmark for 3+ days → 2. Flag as "winner" in database → 3. Auto-generate 5 variations via winner_variation endpoint → 4. Notify user: "Your winning ad has 5 new variations ready to test" | New creatives in library + notification |
+| **Loser Detection** | After Daily Metrics Pulse | 1. Identify creatives with CPL > 150% benchmark for 3+ days → 2. Run loser_diagnosis → 3. Store diagnosis → 4. Notify user: "Ad #X is underperforming. Here's why and what to try." | Diagnosis + fix suggestions |
+
+---
+
+## TIMELINE OVERVIEW
+
+| Phase | Duration | Cumulative | Key Deliverable |
+|-------|----------|------------|-----------------|
+| **0 — Validate** | 1–2 days | ~2 days | Integration map, all APIs confirmed |
+| **1 — Context** | 3–5 days | ~1 week | 8 context files with healthcare advertising knowledge |
+| **2 — Hard Prompts** | 2–3 days | ~1.5 weeks | 14 prompt templates with input/output schemas |
+| **3 — Tools** | 2–3 weeks | ~4.5 weeks | 16 tools built and individually tested |
+| **4 — Goals** | 1 week | ~5.5 weeks | 5 goal workflows orchestrating all tools |
+| **5 — Command Center + n8n** | 1.5–2 weeks | ~7.5 weeks | Full UI, database, automated workflows |
+| **QA + Polish** | 1 week | ~8.5 weeks | End-to-end testing, bug fixes, demo prep |
+
+**Total: ~8–9 weeks to full production.**
+
+---
+
+## WEBINAR DEMO STRATEGY
+
+You don't need all 5 modules built to demo. Here's the webinar-ready subset:
+
+### Demo Build (Week 1–2, parallel to Phase 0–1)
+
+Build a standalone Next.js demo app (the Clinic Growth OS from earlier) that showcases:
+
+1. **Module 1 demo**: Input an offer → get a score + 3 better versions (single AI call, no competitor scraping needed for demo)
+2. **Module 2 demo**: Generate 15-20 ad creatives with copy + image prompts (already built)
+3. **Module 4 teaser**: Show a pre-built example of a daily pulse and weekly brief (static data, beautiful UI)
+4. **Module 3 + 5 teaser**: Screenshots or "coming soon" cards
+
+### Demo Script (for webinar)
+
+1. "Let me show you what happens when a clinic owner brings us a weak offer..." → Run Module 1 live
+2. "Now watch what happens when we feed this optimized offer into our creative engine..." → Run Module 2 live
+3. "In 47 seconds, we just generated what would take a media buyer 2 weeks and $3,000..." → Show results
+4. "But here's the part that really makes it impossible to fail..." → Show Module 4 coaching UI
+5. "Every morning, you wake up to this..." → Show daily pulse example
+6. "And when an ad starts winning, the system automatically..." → Show iteration example
+
+---
+
+## CRITICAL PATH DEPENDENCIES
+
+```
+Offer Intelligence (M1) → feeds into → Creative Factory (M2)
+                                              ↓
+                                    Campaign Architect (M3)
+                                              ↓
+                                    Metrics Coach (M4) ←→ Iteration Engine (M5)
+                                              ↑                    ↓
+                                         Facebook Ads API    Back to M2 (new creatives)
+```
+
+**Build order matters:**
+- M1 and M2 can be built in parallel
+- M3 depends on M2 output (needs creatives to build blueprints)
+- M4 depends on M3 (needs deployed campaigns to analyze)
+- M5 depends on M4 (needs performance data to identify winners/losers)
+- But M5 feeds back into M2 (creates new creatives), closing the loop
+
+---
+
+## PRICING FRAMEWORK (for later)
+
+| Tier | Price | Modules | Limit |
+|------|-------|---------|-------|
+| **Starter** | $97/mo | M1 + M2 (offer scoring + creative generation) | 3 campaigns/mo, 50 creatives/mo |
+| **Growth** | $297/mo | M1 + M2 + M3 + M4 (full system minus iteration) | 10 campaigns/mo, 200 creatives/mo, daily coaching |
+| **Scale** | $597/mo | All 5 modules | Unlimited campaigns, unlimited creatives, priority generation, white-glove onboarding |
+| **Agency** | $1,497/mo | All 5 modules + multi-client | 25 client accounts, team seats, white-label reports |
+
+**Positioning:** "You're paying a media buyer $2,000-5,000/month to do what this system does in 30 minutes. And the system never takes a day off."
+
+---
+
+## NEXT STEPS (This Week)
+
+1. ☐ Validate all API integrations (Phase 0)
+2. ☐ Build webinar demo app in Claude Code (parallel track)
+3. ☐ Start context files — healthcare_offer_frameworks.md and healthcare_cpl_benchmarks.md are highest priority
+4. ☐ Write first 3 hard prompts: offer_scoring, avatar_generation, creative_copy
+5. ☐ Test image batch generation with chosen provider (Replicate recommended for cost/speed)

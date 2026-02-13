@@ -1,0 +1,301 @@
+Claude Code Prompt — Clinic Growth OS (Phase 1: Webinar Demo)
+Paste this entire prompt into Claude Code after running claude in an empty directory.
+
+PROMPT START
+Build a production-ready Next.js application called Clinic Growth OS — a premium AI-powered platform that helps healthcare clinics generate high-converting ad creatives automatically. This is a webinar demo that needs to look like a $10K SaaS product and work flawlessly live.
+
+TECH STACK (exact versions)
+Next.js 14+ with App Router
+TypeScript (strict)
+Tailwind CSS
+Lucide React for icons
+Google Font: DM Sans (import in layout.tsx via next/font/google)
+No additional UI libraries. No shadcn. Keep dependencies minimal for fast deploy.
+
+PROJECT STRUCTURE
+clinic-growth-os/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx          # Root layout, DM Sans font, metadata
+│   │   ├── page.tsx            # Redirects to /dashboard
+│   │   ├── dashboard/
+│   │   │   └── page.tsx        # Dashboard home
+│   │   ├── ad-factory/
+│   │   │   └── page.tsx        # AI Ad Creative Factory (main feature)
+│   │   ├── cash-injection/
+│   │   │   └── page.tsx        # Placeholder — "Coming Soon"
+│   │   ├── roi-calculator/
+│   │   │   └── page.tsx        # Placeholder — "Coming Soon"
+│   │   ├── resources/
+│   │   │   └── page.tsx        # Placeholder — "Coming Soon"
+│   │   ├── api/
+│   │   │   └── generate/
+│   │   │       └── route.ts    # POST endpoint — AI creative generation
+│   │   └── globals.css
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── sidebar.tsx     # Sidebar navigation
+│   │   │   └── app-shell.tsx   # Layout wrapper with sidebar + main content
+│   │   ├── ad-factory/
+│   │   │   ├── business-form.tsx    # Step 1: Input form
+│   │   │   ├── loading-screen.tsx   # Step 2: Animated loading
+│   │   │   ├── results-grid.tsx     # Step 3: Creative cards grid
+│   │   │   ├── creative-card.tsx    # Individual creative card
+│   │   │   └── copy-button.tsx      # Reusable copy-to-clipboard
+│   │   └── ui/
+│   │       └── placeholder-page.tsx # Coming soon template
+│   └── lib/
+│       ├── constants.ts        # Types, clinic types, emotions, styles
+│       ├── prompts.ts          # AI prompt builder
+│       └── fallback-creatives.ts   # Mock data if API fails
+├── .env.local                  # ANTHROPIC_API_KEY
+├── .env.example                # Template for env vars
+├── .gitignore
+└── README.md
+DESIGN REQUIREMENTS
+This must feel like Stripe's dashboard meets Apple's minimalism. Premium SaaS aesthetic.
+
+Design tokens:
+
+Background: slate-50 (#f8fafc)
+Cards: white with border-slate-200, rounded-2xl, shadow-sm, hover:shadow-md
+Primary accent: emerald-500 to teal-600 gradient
+Text: slate-900 (headings), slate-500 (secondary), slate-400 (muted)
+Font: DM Sans — weights 400, 500, 600, 700
+Border radius: rounded-xl for inputs, rounded-2xl for cards
+Inputs: bg-slate-50, border-slate-200, focus:ring-emerald-500/20
+Design rules:
+
+Generous whitespace everywhere — padding 6-10 on containers
+No clutter. Breathing room between elements
+Subtle hover transitions (duration-200 or 300)
+Cards have thin 1px borders, not heavy shadows
+Small text uses tracking-wide or tracking-wider uppercase for labels
+Badges are small pills: text-[10px] or text-xs, px-2, rounded-md or rounded-full
+Animations should feel smooth and intentional, not flashy
+SIDEBAR
+Dark sidebar (bg-slate-950) with:
+
+Logo area: "Clinic Growth OS" with a small gradient icon (emerald-to-teal, Zap icon inside)
+Subtitle: "by Doctor Lead Flow" in tiny uppercase slate-400 text
+Nav items:
+Dashboard (LayoutDashboard icon)
+AI Ad Creative Factory (Sparkles icon) — with "NEW" emerald badge
+Cash Injection Generator (DollarSign icon)
+ROI Calculator (Calculator icon)
+Resource Vault (BookOpen icon)
+Active state: bg-emerald-600/20, text-emerald-400
+Inactive: text-slate-400, hover:text-white, hover:bg-slate-800/50
+Bottom: user avatar circle with "DR" initials, "Dr. Blade", "Premium Plan"
+Collapsible with hamburger menu button
+Sidebar should use Next.js Link components for navigation between routes.
+
+DASHBOARD PAGE (/dashboard)
+Welcome message: "Welcome back, Dr. Blade"
+
+Grid of 4 cards:
+
+AI Ad Creative Factory — gradient emerald card, prominent, links to /ad-factory
+Cash Injection Generator — white card, "Coming Soon" badge
+ROI Calculator — white card, "Coming Soon" badge
+Resource Vault — white card, "Coming Soon" badge
+Below: Quick Stats section (all showing "0" or "—" for demo)
+
+AI AD CREATIVE FACTORY (/ad-factory)
+This is the main feature. 3-step wizard flow managed with React state (useState).
+
+STEP 1 — Business Information Form
+Header:
+
+Small emerald pill badge: "AI-Powered Generation" with Sparkles icon
+Title: "AI Ad Creative Factory" (text-3xl, font-bold)
+Subtitle: "Enter your clinic details and our AI will generate 15–20 high-converting ad creatives in under 60 seconds."
+Form in a white card (rounded-2xl, border, shadow-sm):
+
+Clinic Type — dropdown select with these options: Med Spa, Dental Clinic, IV Therapy Clinic, Wellness Clinic, Weight Loss Clinic, Chiropractic Office, Dermatology Clinic, Physical Therapy, Other
+Primary Service — text input, placeholder: "e.g., Botox injections, teeth whitening, IV vitamin drips..."
+Location — text input, placeholder: "e.g., Miami, FL"
+Target Audience — text input, placeholder: "e.g., Women 35-55, health-conscious professionals..."
+Offer Details — textarea (3 rows), placeholder: "e.g., Free consultation + 20% off first treatment..."
+Campaign Goal — 3 toggle buttons in a row: "Generate Leads", "Book Appointments", "Build Awareness". Selected state: border-emerald-500, bg-emerald-50, text-emerald-700
+Required fields: Clinic Type, Service, Location, Goal (mark with red asterisk)
+
+Submit button: Full width, emerald-600, "Generate Ad Creatives" with Sparkles + ArrowRight icons. Disabled (bg-slate-200, cursor-not-allowed) until required fields filled.
+
+Below form: 3 trust badges in a row: "15-20 creatives per run", "Under 60 seconds", "Ready to deploy" — each with emerald CheckCircle2 icon.
+
+STEP 2 — Loading Screen
+Centered vertically. Show these elements:
+
+Animated orb: Large (w-28 h-28) rounded-full with emerald-to-teal gradient, Sparkles icon spinning inside, pulsing scale animation, ping ring behind it
+
+Progress bar: Slim (h-2) with emerald gradient fill that animates from 0% to 100%. Show percentage on left, "Generating..." on right.
+
+Stage messages: 5 stages that light up sequentially:
+
+"Analyzing your market landscape..." (Target icon)
+"Building customer avatars..." (Users icon)
+"Generating ad creatives..." (Sparkles icon)
+"Optimizing hooks & copy..." (TrendingUp icon)
+"Finalizing your creative library..." (CheckCircle2 icon)
+Each stage transitions: pending (opacity-40, text-slate-300) → active (bg-slate-50, Loader2 spinning) → done (bg-emerald-50, text-emerald-700, CheckCircle2)
+
+Stages advance every ~2.5 seconds regardless of actual API speed.
+
+STEP 3 — Results Dashboard
+Header row: Title "Your Ad Creatives" with count, plus action buttons:
+
+"Copy All" — copies all creatives as formatted text
+"Export" — downloads as .txt file with full formatting
+"New Run" — resets to Step 1
+Stats bar: 4 small cards in a row:
+
+Total Creatives (FileText icon, emerald)
+Avatars count (Users icon, blue)
+Emotions count (Heart icon, rose)
+Styles count (Palette icon, violet)
+Filter bar: Horizontal pills to filter by avatar name. "All (count)" active by default. Click to filter. X button to clear.
+
+Creative cards grid: 3 columns on desktop, 2 on tablet, 1 on mobile.
+
+Each creative card has:
+
+Top bar: "#01" number left, emotion badge + style badge right
+Emotion badges use these colors: frustration=red, hope=emerald, envy=amber, fear=purple, empowerment=blue, curiosity=cyan, urgency=orange, trust=teal
+Style badges: Pattern Interrupt=violet, Native Social=sky, Breaking News=rose, Testimonial=amber, Before/After=lime, Educational=indigo, Social Proof=pink, Direct Offer=emerald
+Avatar name with colored dot
+Headline (font-bold, text-base)
+Primary ad copy text
+Hook angle in amber highlight box
+Collapsible "Image Prompt" section (click to expand/collapse)
+Category label (tiny, muted)
+Bottom action bar: Copy Headline, Copy Copy, Copy Prompt buttons
+Cards should stagger-animate in with fadeInUp + incremental delay.
+
+API ROUTE — /api/generate (POST)
+This is the server-side AI call. The API key must NEVER be exposed to the client.
+
+Request body: { clinicType, service, location, targetAudience, offerDetails, goal }
+
+The route makes 3 sequential calls to the Anthropic API to generate ~6 creatives per call (18 total). Each batch targets different avatar pairs.
+
+Anthropic API call pattern:
+
+import Anthropic from "@anthropic-ai/sdk";
+
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY!,
+});
+
+const response = await anthropic.messages.create({
+  model: "claude-sonnet-4-20250514",
+  max_tokens: 4096,
+  messages: [
+    {
+      role: "user",
+      content: prompt,
+    },
+  ],
+});
+Install @anthropic-ai/sdk as a dependency.
+
+System prompt for generation:
+
+You are an elite healthcare advertising strategist who creates high-converting Facebook and Instagram ads using avatar-based targeting, emotional hooks, and proven direct response frameworks.
+
+Generate exactly 6 ad creatives for this clinic. Return ONLY a valid JSON array — no markdown, no explanation, no code fences.
+
+CLINIC INFO:
+- Type: {clinicType}
+- Service: {service}
+- Location: {location}
+- Target: {targetAudience}
+- Offer: {offerDetails}
+- Goal: {goal}
+
+AVATARS FOR THIS BATCH: {avatarPair}
+
+Each object in the array must have exactly these keys:
+- "id": number (1-6)
+- "avatar": short avatar name (2-4 words)
+- "emotion": one of: frustration, hope, envy, fear, empowerment, curiosity, urgency, trust
+- "style": one of: Pattern Interrupt, Native Social, Breaking News, Testimonial, Before/After, Educational, Social Proof, Direct Offer
+- "headline": compelling ad headline, max 10 words
+- "primary_text": 2-3 sentences of ad copy using "you" language, 5th grade reading level, pain → solution → CTA format
+- "image_prompt": detailed scene description for AI image generation (subject, environment, lighting, mood, camera angle, style)
+- "hook": the opening hook angle in 5-8 words
+- "category": one of: Avatar Test A, Avatar Test B, Emotion Test, Style Test
+
+Rules:
+- Use different emotion + style combinations across the 6 creatives
+- Write at 5th grade reading level
+- Use "you" and "your" language (never "we" or "our")
+- Be specific to the clinic type and service
+- Make headlines scroll-stopping
+- Primary text should be 80-120 words max
+- Image prompts should be detailed enough for Midjourney/DALL-E (include lighting, mood, composition)
+Avatar pairs per batch:
+
+Batch 1: "Busy Professional (35-50, high income, time-poor)" + "Aging Gracefully Seeker (45-65, appearance-conscious)"
+Batch 2: "New Mom Reclaiming Herself (28-40, post-pregnancy)" + "Health-Conscious Executive (40-55, proactive wellness)"
+Batch 3: "Social Media Savvy Millennial (25-38, appearance-driven)" + "Budget-Conscious Value Seeker (30-50, deal-motivated)"
+Error handling:
+
+Wrap each batch in try/catch
+If JSON parsing fails, try to extract JSON array from the response using regex
+If a batch fails, continue with remaining batches
+If ALL batches fail, return a fallback set of 18 pre-built mock creatives
+Return { creatives: Creative[], source: "ai" | "fallback" } from the endpoint
+IMPORTANT: The fallback mock creatives must be realistic and customized using the form data (inject clinicType, service, location, offerDetails into the mock copy). The demo must NEVER show an error screen.
+
+CLIENT-SIDE GENERATION FLOW
+When user clicks "Generate Ad Creatives":
+
+Set step to 2 (loading screen)
+Start stage animation timer (advance every 2.5s)
+Start progress bar animation (increment randomly 1-3% every 200ms, cap at 90%)
+Make POST fetch to /api/generate with form data
+When response arrives:
+Set progress to 100%
+Set final stage to "done"
+Wait 800ms for visual satisfaction
+Set step to 3, populate creatives
+If fetch fails entirely:
+Still transition to step 3 with fallback message
+Never show an error screen during a live demo
+ENV FILES
+.env.example:
+
+# Get your API key at https://console.anthropic.com
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+.env.local (add to .gitignore):
+
+ANTHROPIC_API_KEY=
+README.md
+Write a clean README with:
+
+Project name and one-line description
+Screenshot placeholder
+Quick start instructions (clone, npm install, add .env.local, npm run dev)
+How to deploy to Vercel (push to GitHub, import in Vercel, add ANTHROPIC_API_KEY env var)
+Tech stack list
+Folder structure overview
+DEPLOYMENT CHECKLIST
+Make sure:
+
+.env.local is in .gitignore
+.env.example exists with placeholder
+No API keys in client-side code
+npm run build passes with zero errors
+All "use client" directives are correct
+No TypeScript errors
+The app works on localhost:3000
+CRITICAL RULES
+Every component that uses useState, useEffect, onClick, or any interactivity MUST have "use client" at the top
+Server components (pages that just render) should NOT have "use client"
+The API route (/api/generate/route.ts) is server-side only — no "use client"
+Use next/link for sidebar navigation
+Use next/font/google to load DM Sans
+Make the sidebar a shared layout component (put in app-shell.tsx used by all pages)
+All pages should be wrapped in the app-shell layout
+The ad-factory page manages its own 3-step wizard state internally

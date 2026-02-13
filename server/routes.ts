@@ -62,8 +62,10 @@ export async function registerRoutes(
       const result = await callAI(prompt);
 
       if (result) {
+        const rawScore = result.overall_score;
+        const safeScore = typeof rawScore === "number" ? Math.round(rawScore) : parseInt(String(rawScore), 10) || 0;
         const updated = await storage.updateOffer(offer.id, {
-          score: result.overall_score,
+          score: safeScore,
           scoreBreakdown: result.breakdown,
           weaknesses: result.weaknesses,
           strengths: result.strengths,

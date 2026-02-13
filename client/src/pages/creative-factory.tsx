@@ -3,12 +3,12 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { BusinessForm } from "@/components/ad-factory/business-form";
 import { LoadingScreen } from "@/components/ad-factory/loading-screen";
-import { ResultsGrid } from "@/components/ad-factory/results-grid";
-import type { Creative, GenerateRequest } from "@shared/schema";
+import { ResultsGrid, type DisplayCreative } from "@/components/ad-factory/results-grid";
+import type { GenerateRequest } from "@shared/schema";
 
-export default function AdFactory() {
+export default function CreativeFactory() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [creatives, setCreatives] = useState<Creative[]>([]);
+  const [creatives, setCreatives] = useState<DisplayCreative[]>([]);
   const [progress, setProgress] = useState(0);
   const [activeStage, setActiveStage] = useState(0);
   const progressRef = useRef<ReturnType<typeof setInterval>>();
@@ -19,9 +19,7 @@ export default function AdFactory() {
     if (stageRef.current) clearInterval(stageRef.current);
   }, []);
 
-  useEffect(() => {
-    return cleanup;
-  }, [cleanup]);
+  useEffect(() => { return cleanup; }, [cleanup]);
 
   const generateMutation = useMutation({
     mutationFn: async (formData: GenerateRequest) => {
@@ -50,33 +48,16 @@ export default function AdFactory() {
     setStep(2);
     setProgress(0);
     setActiveStage(0);
-
     stageRef.current = setInterval(() => {
-      setActiveStage((prev) => {
-        if (prev >= 4) {
-          if (stageRef.current) clearInterval(stageRef.current);
-          return prev;
-        }
-        return prev + 1;
-      });
+      setActiveStage((prev) => { if (prev >= 4) { if (stageRef.current) clearInterval(stageRef.current); return prev; } return prev + 1; });
     }, 2500);
-
     progressRef.current = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) return prev;
-        return prev + Math.random() * 3 + 1;
-      });
+      setProgress((prev) => prev >= 90 ? prev : prev + Math.random() * 3 + 1);
     }, 200);
-
     generateMutation.mutate(formData);
   };
 
-  const handleReset = () => {
-    setStep(1);
-    setCreatives([]);
-    setProgress(0);
-    setActiveStage(0);
-  };
+  const handleReset = () => { setStep(1); setCreatives([]); setProgress(0); setActiveStage(0); };
 
   return (
     <div className="flex-1 p-6 lg:p-10 overflow-auto">

@@ -2,9 +2,10 @@ import { Link, useLocation } from "wouter";
 import {
   LayoutDashboard,
   Sparkles,
-  DollarSign,
-  Calculator,
-  BookOpen,
+  Target,
+  Map,
+  MessageSquare,
+  RefreshCw,
   Zap,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -14,6 +15,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuBadge,
@@ -23,10 +25,11 @@ import {
 
 const navItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard, badge: null },
-  { title: "AI Ad Creative Factory", href: "/ad-factory", icon: Sparkles, badge: "NEW" },
-  { title: "Cash Injection Generator", href: "/cash-injection", icon: DollarSign, badge: null },
-  { title: "ROI Calculator", href: "/roi-calculator", icon: Calculator, badge: null },
-  { title: "Resource Vault", href: "/resources", icon: BookOpen, badge: null },
+  { title: "Offer Lab", href: "/offer-lab", icon: Target, badge: "M1" },
+  { title: "Creative Factory", href: "/creative-factory", icon: Sparkles, badge: "M2" },
+  { title: "Campaign HQ", href: "/campaign-hq", icon: Map, badge: "M3" },
+  { title: "Ad Coach", href: "/ad-coach", icon: MessageSquare, badge: "M4" },
+  { title: "Iteration Lab", href: "/iteration-lab", icon: RefreshCw, badge: "M5" },
 ];
 
 export function AppSidebar() {
@@ -41,13 +44,14 @@ export function AppSidebar() {
           </div>
           <div>
             <h1 className="text-sidebar-foreground font-semibold text-sm leading-tight">Clinic Growth OS</h1>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-wider mt-0.5">by Doctor Lead Flow</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-wider mt-0.5">Advertising OS</p>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
+          <SidebarGroupLabel className="text-[10px] uppercase tracking-wider">Modules</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
@@ -65,7 +69,7 @@ export function AppSidebar() {
                       </Link>
                     </SidebarMenuButton>
                     {item.badge && (
-                      <SidebarMenuBadge className="text-[10px] font-semibold bg-emerald-600/20 text-emerald-500 border-0">
+                      <SidebarMenuBadge className="text-[9px] font-semibold bg-emerald-600/15 text-emerald-600 dark:text-emerald-400 border-0">
                         {item.badge}
                       </SidebarMenuBadge>
                     )}

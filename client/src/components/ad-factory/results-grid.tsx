@@ -13,10 +13,20 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CreativeCard } from "./creative-card";
 import { CopyButton } from "./copy-button";
-import type { Creative } from "@shared/schema";
+export interface DisplayCreative {
+  avatar: string;
+  emotion: string;
+  style: string;
+  headline: string;
+  primary_text: string;
+  image_prompt: string;
+  hook: string;
+  category: string;
+  [key: string]: any;
+}
 
 interface ResultsGridProps {
-  creatives: Creative[];
+  creatives: DisplayCreative[];
   onReset: () => void;
 }
 

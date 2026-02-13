@@ -3,10 +3,10 @@ import { ChevronDown, ChevronUp, ImageIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { CopyButton } from "./copy-button";
 import { EMOTION_COLORS, STYLE_COLORS } from "@/lib/constants";
-import type { Creative } from "@shared/schema";
+import type { DisplayCreative } from "./results-grid";
 
 interface CreativeCardProps {
-  creative: Creative;
+  creative: DisplayCreative;
   index: number;
 }
 

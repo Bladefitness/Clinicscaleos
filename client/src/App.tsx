@@ -6,20 +6,22 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import Dashboard from "@/pages/dashboard";
-import AdFactory from "@/pages/ad-factory";
-import CashInjection from "@/pages/cash-injection";
-import RoiCalculator from "@/pages/roi-calculator";
-import Resources from "@/pages/resources";
+import OfferLab from "@/pages/offer-lab";
+import CreativeFactory from "@/pages/creative-factory";
+import CampaignHQ from "@/pages/campaign-hq";
+import AdCoach from "@/pages/ad-coach";
+import IterationLab from "@/pages/iteration-lab";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
-      <Route path="/ad-factory" component={AdFactory} />
-      <Route path="/cash-injection" component={CashInjection} />
-      <Route path="/roi-calculator" component={RoiCalculator} />
-      <Route path="/resources" component={Resources} />
+      <Route path="/offer-lab" component={OfferLab} />
+      <Route path="/creative-factory" component={CreativeFactory} />
+      <Route path="/campaign-hq" component={CampaignHQ} />
+      <Route path="/ad-coach" component={AdCoach} />
+      <Route path="/iteration-lab" component={IterationLab} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -27,7 +29,7 @@ function Router() {
 
 function App() {
   const style = {
-    "--sidebar-width": "17rem",
+    "--sidebar-width": "16rem",
     "--sidebar-width-icon": "3rem",
   };
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, ImageIcon } from "lucide-react";
+import { ChevronDown, ChevronUp, ImageIcon, Loader2, Sparkles, Download } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { CopyButton } from "./copy-button";
 import { EMOTION_COLORS, STYLE_COLORS } from "@/lib/constants";
 import type { DisplayCreative } from "./results-grid";
@@ -8,13 +9,24 @@ import type { DisplayCreative } from "./results-grid";
 interface CreativeCardProps {
   creative: DisplayCreative;
   index: number;
+  imageUrl?: string;
+  isGeneratingImage?: boolean;
+  onGenerateImage?: (prompt: string, index: number) => void;
 }
 
-export function CreativeCard({ creative, index }: CreativeCardProps) {
+export function CreativeCard({ creative, index, imageUrl, isGeneratingImage, onGenerateImage }: CreativeCardProps) {
   const [showPrompt, setShowPrompt] = useState(false);
 
   const emotionStyle = EMOTION_COLORS[creative.emotion] || EMOTION_COLORS.trust;
   const styleStyle = STYLE_COLORS[creative.style] || STYLE_COLORS["Direct Offer"];
+
+  const handleDownloadImage = () => {
+    if (!imageUrl) return;
+    const a = document.createElement("a");
+    a.href = imageUrl;
+    a.download = `ad-creative-${index + 1}.png`;
+    a.click();
+  };
 
   return (
     <Card
@@ -25,6 +37,54 @@ export function CreativeCard({ creative, index }: CreativeCardProps) {
       }}
       data-testid={`card-creative-${index}`}
     >
+      {imageUrl && (
+        <div className="relative group">
+          <img
+            src={imageUrl}
+            alt={creative.headline}
+            className="w-full aspect-[4/3] object-cover rounded-t-md"
+            data-testid={`img-creative-${index}`}
+          />
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              size="icon"
+              variant="secondary"
+              onClick={handleDownloadImage}
+              data-testid={`button-download-image-${index}`}
+            >
+              <Download className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {!imageUrl && (
+        <div className="relative bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 aspect-[4/3] rounded-t-md flex flex-col items-center justify-center gap-3">
+          {isGeneratingImage ? (
+            <>
+              <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+              <span className="text-xs text-muted-foreground">Generating image...</span>
+            </>
+          ) : (
+            <>
+              <ImageIcon className="w-8 h-8 text-muted-foreground/40" />
+              {onGenerateImage && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onGenerateImage(creative.image_prompt, index)}
+                  className="text-xs gap-1.5"
+                  data-testid={`button-generate-image-${index}`}
+                >
+                  <Sparkles className="w-3 h-3" />
+                  Generate Image
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center justify-between gap-2 px-5 pt-4 pb-3 border-b border-border flex-wrap">
         <span className="text-xs font-mono text-muted-foreground">
           #{String(index + 1).padStart(2, "0")}

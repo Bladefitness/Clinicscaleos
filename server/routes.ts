@@ -13,6 +13,7 @@ import {
 } from "./lib/prompts";
 import { generateFallbackCreatives } from "./lib/fallback-creatives";
 import { generateDemoMetrics, getDailyPulseData, getWeeklyBriefData } from "./lib/seed-data";
+import { generateImage } from "./replit_integrations/image/client";
 
 const anthropic = new Anthropic({
   apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
@@ -343,6 +344,25 @@ export async function registerRoutes(
   app.get("/api/iterations", async (_req, res) => {
     const iterations = await storage.getIterations();
     res.json(iterations);
+  });
+
+  // ==========================================
+  // IMAGE GENERATION (Gemini)
+  // ==========================================
+  app.post("/api/generate-image", async (req, res) => {
+    const { prompt } = req.body;
+    if (!prompt || typeof prompt !== "string") {
+      return res.status(400).json({ error: "prompt is required" });
+    }
+
+    try {
+      const adImagePrompt = `Create a professional, high-quality advertisement image for a healthcare clinic. The image should be clean, modern, and suitable for Facebook/Instagram ads. NO text overlay, NO words, NO letters in the image. Pure visual only.\n\nScene: ${prompt}`;
+      const dataUrl = await generateImage(adImagePrompt);
+      res.json({ imageUrl: dataUrl });
+    } catch (error: any) {
+      console.error("Image generation error:", error?.message || error);
+      res.status(500).json({ error: "Failed to generate image" });
+    }
   });
 
   return httpServer;

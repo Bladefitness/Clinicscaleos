@@ -4,6 +4,7 @@
 Clinic Growth OS is a premium AI-powered advertising operating system for healthcare clinics. Features 5 modules covering the complete ad lifecycle: offer creation, creative generation, campaign planning, performance coaching, and iteration optimization. Designed as a webinar demo to showcase a $10K SaaS product.
 
 ## Recent Changes
+- 2026-02-13: Added bulk AI image generation to Creative Factory using Gemini (gemini-2.5-flash-image) - per-card and bulk "Generate All Images" with progress bar, error handling, download
 - 2026-02-13: Built complete 5-module system with PostgreSQL persistence, AI integration (Anthropic), sidebar navigation with M1-M5 badges, and comprehensive dashboard
 - 2026-02-13: Initial build - Dashboard, AI Ad Creative Factory with 3-step wizard, Anthropic AI integration
 
@@ -11,7 +12,7 @@ Clinic Growth OS is a premium AI-powered advertising operating system for health
 - **Frontend**: React + Vite + TypeScript with Tailwind CSS, wouter for routing
 - **Backend**: Express.js with Anthropic AI SDK, PostgreSQL via Drizzle ORM
 - **Database**: PostgreSQL with 7 tables (offers, avatars, creatives, campaigns, metrics_snapshots, coaching_sessions, iterations)
-- **AI Integration**: Uses Replit AI Integrations (Anthropic) for all AI features via claude-sonnet-4-5
+- **AI Integration**: Anthropic (claude-sonnet-4-5) for text/copy, Gemini (gemini-2.5-flash-image) for image generation via Replit AI Integrations
 - **Font**: DM Sans (Google Fonts)
 - **Design**: Emerald/slate theme, premium SaaS aesthetic
 
@@ -47,6 +48,7 @@ Clinic Growth OS is a premium AI-powered advertising operating system for health
 - GET /api/metrics/weekly-brief - Get weekly strategy brief (demo data)
 - POST /api/coach/chat - Chat with AI ad coach
 - POST /api/iterations/analyze - Analyze winners/losers with AI
+- POST /api/generate-image - Generate ad image with Gemini AI
 
 ## User Preferences
 - Premium SaaS aesthetic (Stripe meets Apple minimalism)

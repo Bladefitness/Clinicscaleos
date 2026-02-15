@@ -5,11 +5,14 @@ import { rm, readFile } from "fs/promises";
 // server deps to bundle to reduce openat(2) syscalls
 // which helps cold start times
 const allowlist = [
+  "@anthropic-ai/sdk",
   "@google/generative-ai",
+  "@google/genai",
   "axios",
   "connect-pg-simple",
   "cors",
   "date-fns",
+  "dotenv",
   "drizzle-orm",
   "drizzle-zod",
   "express",
@@ -21,7 +24,10 @@ const allowlist = [
   "nanoid",
   "nodemailer",
   "openai",
+  "p-limit",
+  "p-retry",
   "passport",
+  "passport-facebook",
   "passport-local",
   "pg",
   "stripe",
@@ -53,7 +59,7 @@ async function buildAll() {
     format: "cjs",
     outfile: "dist/index.cjs",
     define: {
-      "process.env.NODE_ENV": '"production"',
+            "process.env.NODE_ENV": '"production"',
     },
     minify: true,
     external: externals,

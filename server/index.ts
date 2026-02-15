@@ -26,6 +26,9 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
+// Health check for Railway/platform probes (must respond before sessions/DB)
+app.get("/health", (_req, res) => res.sendStatus(200));
+
 // Session for Facebook OAuth (token stored in session)
 const sessionSecret = process.env.SESSION_SECRET || "clinic-growth-dev-secret-change-in-production";
 app.use(
@@ -106,10 +109,9 @@ app.use((req, res, next) => {
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Default 5001 to avoid macOS AirPlay/Control Center on 5000; use PORT=5000 to override.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+  // Bind to 0.0.0.0 in production so Railway/Docker can reach the server.
   const port = parseInt(process.env.PORT || "5001", 10);
-  const host = process.env.HOST || "127.0.0.1";
+  const host = process.env.HOST || (process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1");
   httpServer.listen(
     {
       port,

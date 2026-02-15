@@ -1,4 +1,5 @@
 import "./load-env";
+console.log("[Clinic Growth OS] Server process starting...");
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import passport from "passport";
@@ -82,7 +83,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  await registerRoutes(httpServer, app);
+  try {
+    console.log("[Clinic Growth OS] Registering routes...");
+    await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -101,6 +104,7 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (process.env.NODE_ENV === "production") {
+    console.log("[Clinic Growth OS] Serving static files...");
     serveStatic(app);
   } else {
     const { setupVite } = await import("./vite");
@@ -122,4 +126,8 @@ app.use((req, res, next) => {
       log(`serving on http://${host}:${port}`);
     },
   );
+  } catch (err) {
+    console.error("[Clinic Growth OS] Startup failed:", err);
+    process.exit(1);
+  }
 })();

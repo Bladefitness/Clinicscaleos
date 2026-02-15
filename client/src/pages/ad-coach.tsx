@@ -5,10 +5,13 @@ import {
   MessageSquare, Send, Loader2, TrendingUp, TrendingDown, AlertTriangle,
   CheckCircle2, BarChart3, ArrowUpRight, ArrowDownRight, Minus, ChevronDown, ChevronUp
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { LAUNCH_PLAN_STEPS } from "@/lib/launch-plan-steps";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -18,7 +21,7 @@ interface ChatMessage {
 
 function AlertBadge({ level }: { level: string }) {
   const colors = {
-    green: "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400",
+    green: "bg-primary/10 text-primary",
     yellow: "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400",
     red: "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400",
   };
@@ -26,7 +29,7 @@ function AlertBadge({ level }: { level: string }) {
 }
 
 function TrendIcon({ direction }: { direction: string }) {
-  if (direction === "up") return <ArrowUpRight className="w-3.5 h-3.5 text-emerald-500" />;
+  if (direction === "up") return <ArrowUpRight className="w-3.5 h-3.5 text-primary" />;
   if (direction === "down") return <ArrowDownRight className="w-3.5 h-3.5 text-red-500" />;
   return <Minus className="w-3.5 h-3.5 text-muted-foreground" />;
 }
@@ -40,6 +43,14 @@ export default function AdCoach() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [showWeeklyDetails, setShowWeeklyDetails] = useState(false);
 
+  // Deep link from Launch Plan flowchart: /ad-coach?tab=pulse|weekly|chat
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const tabParam = new URLSearchParams(window.location.search).get("tab");
+    if (tabParam === "pulse" || tabParam === "weekly" || tabParam === "chat") setActiveTab(tabParam);
+  }, []);
+
+  const { toast } = useToast();
   const { data: pulseData, isLoading: pulseLoading } = useQuery({ queryKey: ["/api/metrics/daily-pulse"] });
   const { data: weeklyData, isLoading: weeklyLoading } = useQuery({ queryKey: ["/api/metrics/weekly-brief"] });
 
@@ -51,8 +62,18 @@ export default function AdCoach() {
     onSuccess: (data) => {
       setMessages((prev) => [...prev, { role: "assistant", content: data.response, followUpQuestions: data.follow_up_questions }]);
     },
-    onError: () => {
+    onError: (err: Error, message: string) => {
       setMessages((prev) => [...prev, { role: "assistant", content: "Sorry, I had trouble processing that. Could you try rephrasing?" }]);
+      toast({
+        title: "Chat failed",
+        description: err?.message || "Check your connection and Anthropic API key.",
+        variant: "destructive",
+        action: (
+          <ToastAction altText="Retry" onClick={() => chatMutation.mutate(message)}>
+            Retry
+          </ToastAction>
+        ),
+      });
     },
   });
 
@@ -86,12 +107,13 @@ export default function AdCoach() {
     <div className="flex-1 p-6 lg:p-10 overflow-auto">
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-medium mb-4">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-4">
             <MessageSquare className="w-3.5 h-3.5" />
             Module 4: AI Ad Coach
           </span>
           <h1 className="text-2xl font-bold text-foreground" data-testid="text-ad-coach-title">Ad Coach</h1>
           <p className="text-muted-foreground text-sm mt-1">Your AI-powered campaign strategist. Daily insights, weekly briefs, and 24/7 coaching.</p>
+          <p className="text-xs text-muted-foreground mt-2 italic">Why? {LAUNCH_PLAN_STEPS.find((s) => s.id === "coach")?.whyBullets[0]}</p>
         </div>
 
         <div className="flex items-center gap-1 mb-6 bg-slate-100 dark:bg-slate-800 p-1 rounded-md w-fit flex-wrap">
@@ -111,7 +133,7 @@ export default function AdCoach() {
 
         {activeTab === "pulse" && pulseLoading && (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
           </div>
         )}
 
@@ -141,14 +163,14 @@ export default function AdCoach() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card className="p-5">
-                <h3 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
                   <TrendingUp className="w-4 h-4" /> Winners
                 </h3>
                 <div className="space-y-3">
                   {(pulse.winners || []).map((w: any, i: number) => (
                     <div key={i} className="border-b border-border last:border-0 pb-3 last:pb-0">
                       <p className="text-sm font-medium text-foreground">{w.name}</p>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-mono">{w.metric}</p>
+                      <p className="text-xs text-primary font-mono">{w.metric}</p>
                       <p className="text-xs text-muted-foreground mt-1">{w.insight}</p>
                     </div>
                   ))}
@@ -192,7 +214,7 @@ export default function AdCoach() {
 
         {activeTab === "weekly" && weeklyLoading && (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
           </div>
         )}
 
@@ -219,9 +241,9 @@ export default function AdCoach() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card className="p-5">
-                <h3 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Best Performing</h3>
+                <h3 className="text-sm font-semibold text-primary mb-2">Best Performing</h3>
                 <p className="text-sm font-medium text-foreground">{weekly.best_performing?.name}</p>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-mono">{weekly.best_performing?.cpl} CPL | {weekly.best_performing?.leads} leads</p>
+                <p className="text-xs text-primary font-mono">{weekly.best_performing?.cpl} CPL | {weekly.best_performing?.leads} leads</p>
                 <p className="text-xs text-muted-foreground mt-1">{weekly.best_performing?.insight}</p>
               </Card>
               <Card className="p-5">
@@ -265,8 +287,8 @@ export default function AdCoach() {
                       ))}
                     </div>
                   </div>
-                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-md">
-                    <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-1">Next Week Plan</p>
+                  <div className="p-3 bg-primary/10 rounded-md">
+                    <p className="text-xs font-semibold text-primary mb-1">Next Week Plan</p>
                     <p className="text-sm text-foreground">{weekly.next_week_plan}</p>
                   </div>
                 </div>
@@ -284,7 +306,7 @@ export default function AdCoach() {
                     <div
                       className={`rounded-md px-4 py-3 text-sm leading-relaxed ${
                         msg.role === "user"
-                          ? "bg-emerald-600 text-white"
+                          ? "bg-primary text-primary-foreground"
                           : "bg-slate-100 dark:bg-slate-800 text-foreground"
                       }`}
                       data-testid={`chat-message-${i}`}
@@ -297,7 +319,7 @@ export default function AdCoach() {
                           <button
                             key={qi}
                             onClick={() => handleFollowUp(q)}
-                            className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-emerald-500 transition-colors"
+                            className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-primary transition-colors"
                             data-testid={`button-followup-${i}-${qi}`}
                           >
                             {q}
@@ -311,7 +333,7 @@ export default function AdCoach() {
               {chatMutation.isPending && (
                 <div className="flex justify-start">
                   <div className="bg-slate-100 dark:bg-slate-800 rounded-md px-4 py-3">
-                    <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
                   </div>
                 </div>
               )}
@@ -331,7 +353,7 @@ export default function AdCoach() {
                   onClick={handleSend}
                   disabled={!chatInput.trim() || chatMutation.isPending}
                   size="icon"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white no-default-hover-elevate no-default-active-elevate"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground no-default-hover-elevate no-default-active-elevate"
                   data-testid="button-send-chat"
                 >
                   <Send className="w-4 h-4" />

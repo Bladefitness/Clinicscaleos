@@ -7,7 +7,11 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { Badge } from "@/components/ui/badge";
+import { LAUNCH_PLAN_STEPS } from "@/lib/launch-plan-steps";
+import { GlossaryTooltip } from "@/components/glossary-tooltip";
 
 const DEMO_WINNERS = [
   { id: "w1", name: "Aging Gracefully Seeker", headline: "What If Botox Could Turn Back Time?", copy: "Every day you look in the mirror and wonder what happened. The good news? You don't have to settle for how things are. Our Med Spa in Miami has helped hundreds of people just like you rediscover their confidence with Botox. Free consultation + 20% off first treatment. Your best days are still ahead.", cpl: "$14.20", ctr: "3.1%", leads: 34, emotion: "hope", style: "Testimonial" },
@@ -25,6 +29,7 @@ interface AnalysisResult {
 }
 
 export default function IterationLab() {
+  const { toast } = useToast();
   const [selectedCreative, setSelectedCreative] = useState<any>(null);
   const [analysisType, setAnalysisType] = useState<"winner_variation" | "loser_diagnosis" | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -45,6 +50,18 @@ export default function IterationLab() {
     },
     onSuccess: (data) => {
       setAnalysisResult({ type: data.type, data: data.result });
+    },
+    onError: (err: Error, variables: { type: string; creative: any }) => {
+      toast({
+        title: "Analysis failed",
+        description: err?.message || "Check your connection and Anthropic API key.",
+        variant: "destructive",
+        action: (
+          <ToastAction altText="Retry" onClick={() => analyzeMutation.mutate(variables)}>
+            Retry
+          </ToastAction>
+        ),
+      });
     },
   });
 
@@ -67,7 +84,7 @@ export default function IterationLab() {
     return (
       <div className="flex-1 p-6 lg:p-10 overflow-auto">
         <div className="max-w-lg mx-auto flex flex-col items-center justify-center min-h-[60vh]">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center animate-pulse shadow-lg shadow-emerald-500/20 mb-8">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br bg-primary flex items-center justify-center animate-pulse shadow-lg shadow-primary/20 mb-8">
             <RefreshCw className="w-10 h-10 text-white" />
           </div>
           <h2 className="text-xl font-bold text-foreground mb-2">
@@ -78,7 +95,7 @@ export default function IterationLab() {
               ? "Creating 5 strategic variations to test against your winning ad..."
               : "Analyzing hook, copy, image, targeting, and offer to find the weak link..."}
           </p>
-          <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mt-6" />
+          <Loader2 className="w-6 h-6 text-primary animate-spin mt-6" />
         </div>
       </div>
     );
@@ -129,14 +146,14 @@ export default function IterationLab() {
               {(data.fix_options || []).map((fix: any, i: number) => (
                 <Card
                   key={i}
-                  className={`p-5 cursor-pointer ${expandedVariation === i ? "ring-2 ring-emerald-500/30" : ""}`}
+                  className={`p-5 cursor-pointer ${expandedVariation === i ? "ring-2 ring-primary/30" : ""}`}
                   onClick={() => setExpandedVariation(expandedVariation === i ? null : i)}
                   data-testid={`card-fix-${i}`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="text-sm font-semibold text-foreground mb-1">{fix.approach}</p>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400">{fix.expected_improvement}</p>
+                      <p className="text-xs text-primary">{fix.expected_improvement}</p>
                     </div>
                     {expandedVariation === i ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
                   </div>
@@ -161,7 +178,7 @@ export default function IterationLab() {
               {(data.variations || []).map((v: any, i: number) => (
                 <Card
                   key={i}
-                  className={`p-5 cursor-pointer ${expandedVariation === i ? "ring-2 ring-emerald-500/30" : ""}`}
+                  className={`p-5 cursor-pointer ${expandedVariation === i ? "ring-2 ring-primary/30" : ""}`}
                   onClick={() => setExpandedVariation(expandedVariation === i ? null : i)}
                   data-testid={`card-variation-${i}`}
                 >
@@ -180,7 +197,7 @@ export default function IterationLab() {
                     <div className="mt-4 pt-4 border-t border-border space-y-3">
                       <div><p className="text-xs font-semibold text-muted-foreground mb-1">Hook</p><p className="text-sm text-foreground">{v.hook}</p></div>
                       <div><p className="text-xs font-semibold text-muted-foreground mb-1">Copy</p><p className="text-sm text-muted-foreground leading-relaxed">{v.primary_text}</p></div>
-                      <div><p className="text-xs font-semibold text-muted-foreground mb-1">Hypothesis</p><p className="text-sm text-emerald-600 dark:text-emerald-400">{v.hypothesis}</p></div>
+                      <div><p className="text-xs font-semibold text-muted-foreground mb-1">Hypothesis</p><p className="text-sm text-primary">{v.hypothesis}</p></div>
                       <div><p className="text-xs font-semibold text-muted-foreground mb-1">Image Prompt</p><p className="text-xs text-muted-foreground">{v.image_prompt}</p></div>
                     </div>
                   )}
@@ -197,17 +214,18 @@ export default function IterationLab() {
     <div className="flex-1 p-6 lg:p-10 overflow-auto">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-medium mb-4">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-4">
             <RefreshCw className="w-3.5 h-3.5" />
             Module 5: Iteration Engine
           </span>
           <h1 className="text-2xl font-bold text-foreground" data-testid="text-iteration-lab-title">Iteration Lab</h1>
           <p className="text-muted-foreground text-sm mt-1">Scale winners and fix losers. Never stop improving your ads.</p>
+          <p className="text-xs text-muted-foreground mt-2 italic">Why? {LAUNCH_PLAN_STEPS.find((s) => s.id === "iterate")?.whyBullets[0]}</p>
         </div>
 
         <div className="mb-8">
           <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-emerald-500" /> Winners Board
+            <TrendingUp className="w-5 h-5 text-primary" /> Winners Board
           </h2>
           <p className="text-sm text-muted-foreground mb-4">Top performing creatives ready for variation testing</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -220,11 +238,11 @@ export default function IterationLab() {
                 <h3 className="text-sm font-bold text-foreground mb-2">{w.headline}</h3>
                 <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{w.copy}</p>
                 <div className="flex items-center gap-4 mb-4 text-xs flex-wrap">
-                  <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{w.cpl} CPL</span>
-                  <span className="text-foreground font-mono">{w.ctr} CTR</span>
+                  <span className="text-primary font-mono font-bold">{w.cpl} <GlossaryTooltip term="CPL">CPL</GlossaryTooltip></span>
+                  <span className="text-foreground font-mono">{w.ctr} <GlossaryTooltip term="CTR">CTR</GlossaryTooltip></span>
                   <span className="text-muted-foreground">{w.leads} leads</span>
                 </div>
-                <Button onClick={() => handleAnalyze(w, "winner_variation")} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white no-default-hover-elevate no-default-active-elevate gap-2" data-testid={`button-generate-variations-${w.id}`}>
+                <Button onClick={() => handleAnalyze(w, "winner_variation")} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground no-default-hover-elevate no-default-active-elevate gap-2" data-testid={`button-generate-variations-${w.id}`}>
                   <Sparkles className="w-4 h-4" /> Generate 5 Variations <ArrowRight className="w-4 h-4" />
                 </Button>
               </Card>
@@ -247,8 +265,8 @@ export default function IterationLab() {
                 <h3 className="text-sm font-bold text-foreground mb-2">{l.headline}</h3>
                 <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{l.copy}</p>
                 <div className="flex items-center gap-4 mb-4 text-xs flex-wrap">
-                  <span className="text-red-600 dark:text-red-400 font-mono font-bold">{l.cpl} CPL</span>
-                  <span className="text-foreground font-mono">{l.ctr} CTR</span>
+                  <span className="text-red-600 dark:text-red-400 font-mono font-bold">{l.cpl} <GlossaryTooltip term="CPL">CPL</GlossaryTooltip></span>
+                  <span className="text-foreground font-mono">{l.ctr} <GlossaryTooltip term="CTR">CTR</GlossaryTooltip></span>
                   <span className="text-muted-foreground">{l.leads} leads</span>
                 </div>
                 <Button onClick={() => handleAnalyze(l, "loser_diagnosis")} variant="outline" className="w-full gap-2" data-testid={`button-diagnose-${l.id}`}>

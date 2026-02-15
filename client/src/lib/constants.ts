@@ -39,9 +39,9 @@ export const STYLE_COLORS: Record<string, { bg: string; text: string }> = {
 };
 
 export const LOADING_STAGES = [
-  { label: "Analyzing your market landscape...", icon: "Target" },
-  { label: "Building customer avatars...", icon: "Users" },
-  { label: "Generating ad creatives...", icon: "Sparkles" },
-  { label: "Optimizing hooks & copy...", icon: "TrendingUp" },
-  { label: "Finalizing your creative library...", icon: "CheckCircle2" },
+  { label: "Discovering what makes your market convert...", icon: "Target" },
+  { label: "Creating avatars that mirror your best patients...", icon: "Users" },
+  { label: "Crafting scroll-stopping creatives...", icon: "Sparkles" },
+  { label: "Sharpening hooks that trigger action...", icon: "TrendingUp" },
+  { label: "Your creative library is ready. Next: launch in Campaign HQ.", icon: "CheckCircle2" },
 ] as const;

@@ -1,7 +1,8 @@
 import { eq, desc } from "drizzle-orm";
 import { db } from "./db";
 import {
-  offers, avatars, creatives, campaigns, metricsSnapshots, coachingSessions, iterations,
+  offers, avatars, creatives, campaigns, metricsSnapshots, coachingSessions, iterations, creativeRuns,
+  videoProjects, videoAssets, timelineVersions, renders, agentMessages,
   type InsertOffer, type Offer,
   type InsertAvatar, type Avatar,
   type InsertCreative, type Creative,
@@ -9,6 +10,12 @@ import {
   type InsertMetricsSnapshot, type MetricsSnapshot,
   type InsertCoachingSession, type CoachingSession,
   type InsertIteration, type Iteration,
+  type InsertCreativeRun, type CreativeRun,
+  type InsertVideoProject, type VideoProject,
+  type InsertVideoAsset, type VideoAsset,
+  type InsertTimelineVersion, type TimelineVersion,
+  type InsertRender, type Render,
+  type InsertAgentMessage, type AgentMessage,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -39,6 +46,29 @@ export interface IStorage {
 
   createIteration(data: InsertIteration): Promise<Iteration>;
   getIterations(): Promise<Iteration[]>;
+
+  createCreativeRun(data: InsertCreativeRun): Promise<CreativeRun>;
+  getCreativeRuns(visibility?: string): Promise<CreativeRun[]>;
+  getCreativeRun(id: string): Promise<CreativeRun | undefined>;
+  updateCreativeRun(id: string, data: Partial<Pick<CreativeRun, "name" | "visibility">>): Promise<CreativeRun | undefined>;
+
+  createVideoProject(data: InsertVideoProject): Promise<VideoProject>;
+  getVideoProject(id: string): Promise<VideoProject | undefined>;
+  getVideoProjects(): Promise<VideoProject[]>;
+  updateVideoProject(id: string, data: Partial<Pick<VideoProject, "name" | "type" | "timeline" | "updatedAt">>): Promise<VideoProject | undefined>;
+
+  createVideoAsset(data: InsertVideoAsset): Promise<VideoAsset>;
+  getVideoAssets(projectId: string): Promise<VideoAsset[]>;
+
+  createTimelineVersion(data: InsertTimelineVersion): Promise<TimelineVersion>;
+  getTimelineVersions(projectId: string, limit?: number): Promise<TimelineVersion[]>;
+
+  createRender(data: InsertRender): Promise<Render>;
+  getRender(id: string): Promise<Render | undefined>;
+  updateRender(id: string, data: Partial<Pick<Render, "status" | "outputUrl" | "progress" | "error" | "startedAt" | "completedAt">>): Promise<Render | undefined>;
+
+  createAgentMessage(data: InsertAgentMessage): Promise<AgentMessage>;
+  getAgentMessages(projectId: string, limit?: number): Promise<AgentMessage[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -143,6 +173,89 @@ export class DatabaseStorage implements IStorage {
 
   async getIterations(): Promise<Iteration[]> {
     return db.select().from(iterations).orderBy(desc(iterations.createdAt));
+  }
+
+  async createCreativeRun(data: InsertCreativeRun): Promise<CreativeRun> {
+    const [result] = await db.insert(creativeRuns).values(data).returning();
+    return result;
+  }
+
+  async getCreativeRuns(visibility?: string): Promise<CreativeRun[]> {
+    if (visibility) {
+      return db.select().from(creativeRuns).where(eq(creativeRuns.visibility, visibility)).orderBy(desc(creativeRuns.createdAt));
+    }
+    return db.select().from(creativeRuns).orderBy(desc(creativeRuns.createdAt));
+  }
+
+  async getCreativeRun(id: string): Promise<CreativeRun | undefined> {
+    const [result] = await db.select().from(creativeRuns).where(eq(creativeRuns.id, id));
+    return result;
+  }
+
+  async updateCreativeRun(id: string, data: Partial<Pick<CreativeRun, "name" | "visibility">>): Promise<CreativeRun | undefined> {
+    const [result] = await db.update(creativeRuns).set(data).where(eq(creativeRuns.id, id)).returning();
+    return result;
+  }
+
+  async createVideoProject(data: InsertVideoProject): Promise<VideoProject> {
+    const [result] = await db.insert(videoProjects).values(data).returning();
+    return result;
+  }
+
+  async getVideoProject(id: string): Promise<VideoProject | undefined> {
+    const [result] = await db.select().from(videoProjects).where(eq(videoProjects.id, id));
+    return result;
+  }
+
+  async getVideoProjects(): Promise<VideoProject[]> {
+    return db.select().from(videoProjects).orderBy(desc(videoProjects.updatedAt));
+  }
+
+  async updateVideoProject(id: string, data: Partial<Pick<VideoProject, "name" | "type" | "timeline" | "updatedAt">>): Promise<VideoProject | undefined> {
+    const [result] = await db.update(videoProjects).set({ ...data, updatedAt: new Date() }).where(eq(videoProjects.id, id)).returning();
+    return result;
+  }
+
+  async createVideoAsset(data: InsertVideoAsset): Promise<VideoAsset> {
+    const [result] = await db.insert(videoAssets).values(data).returning();
+    return result;
+  }
+
+  async getVideoAssets(projectId: string): Promise<VideoAsset[]> {
+    return db.select().from(videoAssets).where(eq(videoAssets.projectId, projectId)).orderBy(desc(videoAssets.createdAt));
+  }
+
+  async createTimelineVersion(data: InsertTimelineVersion): Promise<TimelineVersion> {
+    const [result] = await db.insert(timelineVersions).values(data).returning();
+    return result;
+  }
+
+  async getTimelineVersions(projectId: string, limit = 50): Promise<TimelineVersion[]> {
+    return db.select().from(timelineVersions).where(eq(timelineVersions.projectId, projectId)).orderBy(desc(timelineVersions.createdAt)).limit(limit);
+  }
+
+  async createRender(data: InsertRender): Promise<Render> {
+    const [result] = await db.insert(renders).values(data).returning();
+    return result;
+  }
+
+  async getRender(id: string): Promise<Render | undefined> {
+    const [result] = await db.select().from(renders).where(eq(renders.id, id));
+    return result;
+  }
+
+  async updateRender(id: string, data: Partial<Pick<Render, "status" | "outputUrl" | "progress" | "error" | "startedAt" | "completedAt">>): Promise<Render | undefined> {
+    const [result] = await db.update(renders).set(data).where(eq(renders.id, id)).returning();
+    return result;
+  }
+
+  async createAgentMessage(data: InsertAgentMessage): Promise<AgentMessage> {
+    const [result] = await db.insert(agentMessages).values(data).returning();
+    return result;
+  }
+
+  async getAgentMessages(projectId: string, limit = 100): Promise<AgentMessage[]> {
+    return db.select().from(agentMessages).where(eq(agentMessages.projectId, projectId)).orderBy(desc(agentMessages.createdAt)).limit(limit);
   }
 }
 

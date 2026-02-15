@@ -7,7 +7,10 @@ import {
   MessageSquare,
   RefreshCw,
   Zap,
+  Wrench,
+  Video,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -30,6 +33,8 @@ const navItems = [
   { title: "Campaign HQ", href: "/campaign-hq", icon: Map, badge: "M3" },
   { title: "Ad Coach", href: "/ad-coach", icon: MessageSquare, badge: "M4" },
   { title: "Iteration Lab", href: "/iteration-lab", icon: RefreshCw, badge: "M5" },
+  { title: "AI Tools", href: "/ai-tools", icon: Wrench, badge: null },
+  { title: "Video Studio", href: "/video-studio", icon: Video, badge: null },
 ];
 
 export function AppSidebar() {
@@ -37,21 +42,21 @@ export function AppSidebar() {
 
   return (
     <Sidebar data-testid="sidebar">
-      <SidebarHeader className="p-4 pb-2">
+      <SidebarHeader className="p-4 pb-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
-            <Zap className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
+            <Zap className="w-5 h-5 text-primary-foreground" />
           </div>
-          <div>
-            <h1 className="text-sidebar-foreground font-semibold text-sm leading-tight">Clinic Growth OS</h1>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-wider mt-0.5">Advertising OS</p>
+          <div className="min-w-0">
+            <h1 className="text-sidebar-foreground font-bold text-sm leading-tight truncate">Clinic Growth OS</h1>
+            <p className="text-sidebar-foreground/90 text-xs uppercase tracking-wider mt-0.5">Dominate your market</p>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] uppercase tracking-wider">Modules</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground uppercase tracking-wider">Modules</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
@@ -69,7 +74,7 @@ export function AppSidebar() {
                       </Link>
                     </SidebarMenuButton>
                     {item.badge && (
-                      <SidebarMenuBadge className="text-[9px] font-semibold bg-emerald-600/15 text-emerald-600 dark:text-emerald-400 border-0">
+                      <SidebarMenuBadge className="text-[9px] font-semibold bg-primary/10 text-primary border-0">
                         {item.badge}
                       </SidebarMenuBadge>
                     )}
@@ -82,15 +87,22 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">
+        <p className="text-[11px] text-muted-foreground mb-2 space-y-0.5">
+          <span className="block"><kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono">⌘K</kbd> search</span>
+          <span className="block"><kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono">⌘1–6</kbd> jump</span>
+        </p>
+        <div className="flex items-center justify-end mb-3">
+          <ThemeToggle />
+        </div>
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-xs font-semibold">
+            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
               DR
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sidebar-foreground text-sm font-medium truncate" data-testid="text-user-name">Dr. Blade</p>
-            <p className="text-muted-foreground text-xs truncate">Premium Plan</p>
+            <p className="text-sidebar-foreground/90 text-xs truncate">Premium Plan</p>
           </div>
         </div>
       </SidebarFooter>

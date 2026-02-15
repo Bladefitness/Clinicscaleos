@@ -1,13 +1,19 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { campaignBlueprintRequestSchema, type CampaignBlueprintRequest } from "@shared/schema";
+import { Link } from "wouter";
 import {
   Map, ArrowRight, Loader2, CheckCircle2, ChevronDown, ChevronRight,
-  Download, Users, DollarSign, Target, Calendar, AlertCircle
+  Download, Users, Target, AlertCircle, Sparkles
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { ToastAction } from "@/components/ui/toast";
+import { celebrate } from "@/lib/celebrate";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,11 +26,12 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { CLINIC_TYPES, CAMPAIGN_GOALS } from "@/lib/constants";
+import { LAUNCH_PLAN_STEPS } from "@/lib/launch-plan-steps";
 
 function DeploymentStep({ step, index, checked, onToggle }: { step: any; index: number; checked: boolean; onToggle: () => void }) {
   return (
     <div
-      className={`flex items-start gap-3 p-4 rounded-md transition-colors ${checked ? "bg-emerald-50 dark:bg-emerald-950/20" : "bg-slate-50 dark:bg-slate-800/30"}`}
+      className={`flex items-start gap-3 p-4 rounded-md transition-colors ${checked ? "bg-primary/10" : "bg-slate-50 dark:bg-slate-800/30"}`}
       data-testid={`deployment-step-${index}`}
     >
       <Checkbox
@@ -52,6 +59,7 @@ function DeploymentStep({ step, index, checked, onToggle }: { step: any; index: 
 }
 
 export default function CampaignHQ() {
+  const { toast } = useToast();
   const [campaign, setCampaign] = useState<any>(null);
   const [expandedPhase, setExpandedPhase] = useState<number>(0);
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set());
@@ -67,8 +75,34 @@ export default function CampaignHQ() {
       return res.json();
     },
     onSuccess: (data) => {
+      if (!data?.campaign?.blueprint) {
+        toast({
+          title: "Blueprint generation failed",
+          description: data?.message || data?.error || "No campaign blueprint was returned. Please try again.",
+          variant: "destructive",
+          action: (
+            <ToastAction altText="Retry" onClick={() => form.handleSubmit((d) => blueprintMutation.mutate(d))()}>
+              Retry
+            </ToastAction>
+          ),
+        });
+        return;
+      }
       setCampaign(data.campaign);
+      celebrate();
       queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
+    },
+    onError: (err: Error) => {
+      toast({
+        title: "Could not generate blueprint",
+        description: err.message || "Check your connection and API keys, then try again.",
+        variant: "destructive",
+        action: (
+          <ToastAction altText="Retry" onClick={() => form.handleSubmit((d) => blueprintMutation.mutate(d))()}>
+            Retry
+          </ToastAction>
+        ),
+      });
     },
   });
 
@@ -95,13 +129,26 @@ export default function CampaignHQ() {
   if (blueprintMutation.isPending) {
     return (
       <div className="flex-1 p-6 lg:p-10 overflow-auto">
-        <div className="max-w-lg mx-auto flex flex-col items-center justify-center min-h-[60vh]">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center animate-pulse shadow-lg shadow-emerald-500/20 mb-8">
-            <Map className="w-10 h-10 text-white" />
+        <div className="max-w-5xl mx-auto">
+          <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Campaign HQ", href: "/campaign-hq" }, { label: "Building..." }]} className="mb-6" />
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-12 w-12 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-20 w-full rounded-lg" />
+              ))}
+            </div>
           </div>
-          <h2 className="text-xl font-bold text-foreground mb-2">Building Your Campaign Blueprint</h2>
-          <p className="text-muted-foreground text-center max-w-sm">Generating campaign structure, targeting, budget allocation, and deployment checklist...</p>
-          <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mt-6" />
+          <div className="mt-8 flex flex-col items-center">
+            <Loader2 className="w-6 h-6 text-primary animate-spin" />
+            <p className="text-sm text-muted-foreground mt-3">Building campaign structure, targeting, and deployment checklist...</p>
+          </div>
         </div>
       </div>
     );
@@ -117,6 +164,7 @@ export default function CampaignHQ() {
     return (
       <div className="flex-1 p-6 lg:p-10 overflow-auto">
         <div className="max-w-5xl mx-auto">
+          <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Campaign HQ", href: "/campaign-hq" }, { label: bp.campaign_name || "Blueprint" }]} className="mb-6" />
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
             <div>
               <h1 className="text-2xl font-bold text-foreground" data-testid="text-campaign-title">{bp.campaign_name || campaign.name}</h1>
@@ -146,8 +194,8 @@ export default function CampaignHQ() {
                     data-testid={`button-phase-${pi}`}
                   >
                     <div className="flex items-center gap-3 flex-wrap">
-                      <div className="w-8 h-8 rounded-md bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">{pi + 1}</span>
+                      <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-bold text-primary">{pi + 1}</span>
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-foreground">{phase.phase_name}</p>
@@ -178,7 +226,7 @@ export default function CampaignHQ() {
                           )}
                           <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
                             <span className="text-red-500">Kill: {adSet.kill_criteria}</span>
-                            <span className="text-emerald-500">Scale: {adSet.scale_criteria}</span>
+                            <span className="text-primary">Scale: {adSet.scale_criteria}</span>
                           </div>
                         </div>
                       ))}
@@ -196,7 +244,7 @@ export default function CampaignHQ() {
                 <span className="text-sm text-muted-foreground">{completedSteps}/{totalSteps} completed</span>
               </div>
               <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-4">
-                <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0}%` }} />
+                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0}%` }} />
               </div>
               <div className="space-y-2">
                 {steps.map((step: any, i: number) => (
@@ -205,6 +253,18 @@ export default function CampaignHQ() {
               </div>
             </div>
           )}
+
+          <Card className="card-premium p-6 mt-8 border-primary/20">
+            <h3 className="text-sm font-semibold text-foreground mb-2">What&apos;s next?</h3>
+            <p className="text-sm text-muted-foreground mb-4">Generate ad creatives for this campaign.</p>
+            <Link href="/creative-factory">
+              <Button className="btn-primary-glow gap-2">
+                <Sparkles className="w-4 h-4" />
+                Create ads in Creative Factory
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </Card>
         </div>
       </div>
     );
@@ -213,14 +273,18 @@ export default function CampaignHQ() {
   return (
     <div className="flex-1 p-6 lg:p-10 overflow-auto">
       <div className="max-w-3xl mx-auto">
+        <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Campaign HQ" }]} className="mb-6" />
         <div className="text-center mb-8">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-medium mb-4">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-4">
             <Map className="w-3.5 h-3.5" />
             Module 3: Campaign Architect
           </span>
           <h1 className="text-3xl font-bold text-foreground mb-2" data-testid="text-campaign-hq-title">Campaign HQ</h1>
           <p className="text-muted-foreground max-w-lg mx-auto">
             Generate a complete Facebook Ads campaign blueprint with targeting, budget allocation, and step-by-step deployment instructions.
+          </p>
+          <p className="text-xs text-muted-foreground max-w-lg mx-auto mt-2 italic">
+            Why? {LAUNCH_PLAN_STEPS.find((s) => s.id === "campaign")?.whyBullets[0]}
           </p>
         </div>
 
@@ -283,7 +347,7 @@ export default function CampaignHQ() {
                 </FormItem>
               )} />
 
-              <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white no-default-hover-elevate no-default-active-elevate" data-testid="button-generate-blueprint">
+              <Button type="submit" className="w-full btn-primary-glow bg-primary hover:bg-primary/90 text-primary-foreground no-default-hover-elevate no-default-active-elevate" data-testid="button-generate-blueprint">
                 <Map className="w-4 h-4 mr-2" />
                 Generate Campaign Blueprint
                 <ArrowRight className="w-4 h-4 ml-2" />

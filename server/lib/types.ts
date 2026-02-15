@@ -8,6 +8,7 @@ export interface Creative {
   image_prompt: string;
   hook: string;
   category: string;
+  rationale?: string;
 }
 
 export interface GenerateRequest {

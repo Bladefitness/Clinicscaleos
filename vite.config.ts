@@ -27,9 +27,19 @@ export default defineConfig({
     },
   },
   root: path.resolve(import.meta.dirname, "client"),
+  optimizeDeps: {
+    include: ["lucide-react"],
+  },
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "lucide-react": ["lucide-react"],
+        },
+      },
+    },
   },
   server: {
     fs: {

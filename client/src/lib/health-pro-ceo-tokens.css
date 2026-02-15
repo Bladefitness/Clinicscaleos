@@ -1,0 +1,79 @@
+/**
+ * Health Pro CEO — Brand System v2
+ * Dark Depth + Gold Authority
+ * Use across Clinic Growth OS and other Health Pro sites for consistent branding.
+ *
+ * Import: @import "@/lib/health-pro-ceo-tokens.css";
+ * Or reference in Tailwind: these vars are available when .dark is applied.
+ */
+
+:root {
+  /* ═══ DARK DEPTH SYSTEM (5 tiers) ═══ */
+  --hpc-void:        #050506;   /* Deepest — hero overlays, modals */
+  --hpc-black:       #09090B;   /* Primary page background */
+  --hpc-dark:        #0F0F12;   /* Alternating section background */
+  --hpc-elevated:    #151519;   /* Cards, containers, inputs */
+  --hpc-surface:     #1A1A1F;   /* Hover states, active cards */
+
+  /* ═══ BORDER & DIVIDER SYSTEM ═══ */
+  --hpc-border-subtle:   rgba(255,255,255,0.04);
+  --hpc-border-default:  rgba(255,255,255,0.07);
+  --hpc-border-strong:   rgba(255,255,255,0.12);
+  --hpc-border-gold:     rgba(212,168,67,0.20);
+
+  /* ═══ GOLD SPECTRUM ═══ */
+  --hpc-gold:        #D4A843;   /* Primary — CTAs, headlines, icons */
+  --hpc-gold-bright: #E8C96A;   /* Hover states, active highlights */
+  --hpc-gold-deep:   #B08A2A;   /* Pressed states, dark accents */
+  --hpc-gold-muted:  #9A7D3A;   /* Disabled gold, tertiary accents */
+
+  /* ═══ GOLD GLOW SYSTEM (replaces white space) ═══ */
+  --hpc-glow-4:    rgba(212,168,67,0.04);
+  --hpc-glow-8:    rgba(212,168,67,0.08);
+  --hpc-glow-12:   rgba(212,168,67,0.12);
+  --hpc-glow-20:   rgba(212,168,67,0.20);
+
+  /* ═══ TEXT HIERARCHY ═══ */
+  --hpc-text-white:     #FFFFFF;   /* Stats, hero headline only */
+  --hpc-text-primary:   #E4E4E7;   /* Subheadings, key body copy */
+  --hpc-text-secondary: #A1A1AA;   /* Descriptions, supporting copy */
+  --hpc-text-tertiary:  #71717A;   /* Labels, captions, fine print */
+  --hpc-text-ghost:     #52525B;   /* Placeholder text, disabled */
+
+  /* ═══ READABLE DARK UI VARIANTS (WCAG AA) ═══ */
+  --hpc-text-secondary-readable: #B8B8C2;  /* ~6:1 on #09090B */
+  --hpc-text-tertiary-readable:  #9CA3AF;  /* ~5:1 for labels */
+  --hpc-text-placeholder-readable: #71717A; /* ~3.5:1 for placeholders */
+
+  /* ═══ STATUS ═══ */
+  --hpc-success:      #22C55E;
+  --hpc-success-soft: rgba(34,197,94,0.10);
+  --hpc-error:        #EF4444;
+  --hpc-error-soft:   rgba(239,68,68,0.10);
+  --hpc-info:         #3B82F6;
+  --hpc-info-soft:    rgba(59,130,246,0.10);
+
+  /* ═══ GRADIENTS ═══ */
+  --hpc-grad-gold:      linear-gradient(135deg, #D4A843 0%, #E8C96A 50%, #D4A843 100%);
+  --hpc-grad-cta:       linear-gradient(135deg, #D4A843 0%, #B08A2A 100%);
+  --hpc-grad-cta-hover: linear-gradient(135deg, #E8C96A 0%, #D4A843 100%);
+  --hpc-grad-depth:     linear-gradient(180deg, #09090B 0%, #0F0F12 100%);
+  --hpc-grad-hero:      radial-gradient(ellipse at 50% 0%, rgba(212,168,67,0.08) 0%, transparent 55%);
+  --hpc-grad-card:      linear-gradient(160deg, #1A1A1F 0%, #151519 100%);
+
+  /* ═══ SHADOWS ═══ */
+  --hpc-shadow-sm:   0 2px 8px rgba(0,0,0,0.3);
+  --hpc-shadow-md:   0 4px 16px rgba(0,0,0,0.4);
+  --hpc-shadow-lg:   0 8px 32px rgba(0,0,0,0.5);
+  --hpc-shadow-gold: 0 4px 20px rgba(212,168,67,0.15);
+  --hpc-shadow-glow: 0 0 40px rgba(212,168,67,0.10);
+
+  /* ═══ TYPOGRAPHY ═══ */
+  --hpc-font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --hpc-font-body:    'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* ═══ SPACING & RADIUS ═══ */
+  --hpc-radius-sm: 8px;
+  --hpc-radius-md: 12px;
+  --hpc-radius-lg: 16px;
+}

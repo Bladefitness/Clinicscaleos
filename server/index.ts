@@ -1,7 +1,11 @@
+import "./load-env";
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
+import passport from "passport";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { setupPassport } from "./auth";
 
 const app = express();
 const httpServer = createServer(app);
@@ -21,6 +25,20 @@ app.use(
 );
 
 app.use(express.urlencoded({ extended: false }));
+
+// Session for Facebook OAuth (token stored in session)
+const sessionSecret = process.env.SESSION_SECRET || "clinic-growth-dev-secret-change-in-production";
+app.use(
+  session({
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === "production", maxAge: 7 * 24 * 60 * 60 * 1000 },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+setupPassport();
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -49,7 +67,8 @@ app.use((req, res, next) => {
     if (path.startsWith("/api")) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+        const s = JSON.stringify(capturedJsonResponse);
+        logLine += ` :: ${s.length > 500 ? s.slice(0, 200) + "...[truncated]" : s}`;
       }
 
       log(logLine);
@@ -86,18 +105,19 @@ app.use((req, res, next) => {
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
+  // Default 5001 to avoid macOS AirPlay/Control Center on 5000; use PORT=5000 to override.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || "5000", 10);
+  const port = parseInt(process.env.PORT || "5001", 10);
+  const host = process.env.HOST || "127.0.0.1";
   httpServer.listen(
     {
       port,
-      host: "0.0.0.0",
-      reusePort: true,
+      host,
+      ...(host === "0.0.0.0" && { reusePort: true }),
     },
     () => {
-      log(`serving on port ${port}`);
+      log(`serving on http://${host}:${port}`);
     },
   );
 })();

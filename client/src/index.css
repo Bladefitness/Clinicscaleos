@@ -2,51 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE */
+@import "./lib/health-pro-ceo-tokens.css";
+
+/* LIGHT MODE - Clean, sleek, modern */
 :root {
-  --button-outline: rgba(0,0,0, .10);
-  --badge-outline: rgba(0,0,0, .05);
+  --button-outline: rgba(0,0,0, .08);
+  --badge-outline: rgba(0,0,0, .04);
   --opaque-button-border-intensity: -8;
-  --elevate-1: rgba(0,0,0, .03);
-  --elevate-2: rgba(0,0,0, .08);
-  --background: 210 20% 98%;
-  --foreground: 222 47% 11%;
-  --border: 214 20% 91%;
-  --card: 210 17% 96%;
-  --card-foreground: 222 47% 11%;
-  --card-border: 214 18% 93%;
-  --sidebar: 210 16% 93%;
-  --sidebar-foreground: 222 47% 11%;
-  --sidebar-border: 214 16% 89%;
-  --sidebar-primary: 160 84% 39%;
-  --sidebar-primary-foreground: 151 55% 98%;
-  --sidebar-accent: 210 16% 88%;
-  --sidebar-accent-foreground: 222 47% 11%;
-  --sidebar-ring: 160 84% 39%;
-  --popover: 210 17% 91%;
-  --popover-foreground: 222 47% 11%;
-  --popover-border: 214 17% 87%;
-  --primary: 160 84% 39%;
-  --primary-foreground: 151 55% 98%;
-  --secondary: 210 16% 86%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 210 16% 89%;
-  --muted-foreground: 215 16% 35%;
-  --accent: 210 14% 90%;
-  --accent-foreground: 222 47% 11%;
+  --elevate-1: rgba(0,0,0, .02);
+  --elevate-2: rgba(0,0,0, .06);
+  --background: 0 0% 99%;
+  --foreground: 222 47% 9%;
+  --border: 220 14% 94%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 9%;
+  --card-border: 220 14% 93%;
+  --sidebar: 0 0% 98%;
+  --sidebar-foreground: 222 47% 9%;
+  --sidebar-border: 220 14% 92%;
+  --sidebar-primary: 238 84% 53%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 220 14% 94%;
+  --sidebar-accent-foreground: 222 47% 9%;
+  --sidebar-ring: 238 84% 53%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 9%;
+  --popover-border: 220 14% 92%;
+  --primary: 238 84% 53%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 222 47% 9%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+  --accent: 220 14% 95%;
+  --accent-foreground: 222 47% 9%;
   --destructive: 0 84% 47%;
   --destructive-foreground: 0 85% 98%;
-  --input: 214 20% 82%;
-  --ring: 160 84% 39%;
-  --chart-1: 160 84% 32%;
-  --chart-2: 173 80% 35%;
-  --chart-3: 198 93% 38%;
-  --chart-4: 43 96% 42%;
+  --input: 220 14% 88%;
+  --ring: 238 84% 53%;
+  --chart-1: 238 84% 53%;
+  --chart-2: 220 70% 50%;
+  --chart-3: 200 80% 45%;
+  --chart-4: 45 93% 47%;
   --chart-5: 340 82% 45%;
-  --font-sans: "DM Sans", sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
   --radius: .5rem;
+  --radius-lg: .75rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(214 20% 50% / 0.05);
   --shadow-xs: 0px 2px 0px 0px hsl(214 20% 50% / 0.06);
   --shadow-sm: 0px 2px 0px 0px hsl(214 20% 50% / 0.05), 0px 1px 2px -1px hsl(214 20% 50% / 0.08);
@@ -87,80 +90,76 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
+/* DARK MODE — Health Pro CEO Brand System v2 */
 .dark {
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);
   --opaque-button-border-intensity: 9;
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
-  --background: 222 47% 4%;
-  --foreground: 210 17% 96%;
-  --border: 215 25% 12%;
-  --card: 222 40% 6%;
-  --card-foreground: 210 17% 96%;
-  --card-border: 215 35% 9%;
-  --sidebar: 222 40% 8%;
-  --sidebar-foreground: 210 17% 96%;
-  --sidebar-border: 215 35% 11%;
-  --sidebar-primary: 160 84% 39%;
-  --sidebar-primary-foreground: 151 55% 98%;
-  --sidebar-accent: 222 35% 11%;
-  --sidebar-accent-foreground: 210 17% 96%;
-  --sidebar-ring: 160 84% 39%;
-  --popover: 222 35% 10%;
-  --popover-foreground: 210 17% 96%;
-  --popover-border: 215 30% 13%;
-  --primary: 160 84% 39%;
-  --primary-foreground: 151 55% 98%;
-  --secondary: 222 30% 13%;
-  --secondary-foreground: 210 17% 96%;
-  --muted: 222 30% 12%;
-  --muted-foreground: 215 16% 65%;
-  --accent: 222 25% 11%;
-  --accent-foreground: 210 17% 96%;
-  --destructive: 0 84% 47%;
+  /* HPC Dark Depth: black → dark → elevated → surface */
+  --background: 240 5% 3.5%;      /* --hpc-black #09090B */
+  --foreground: 240 6% 90%;       /* --hpc-text-primary #E4E4E7 */
+  --border: 240 6% 14%;           /* --hpc-border-default equiv */
+  --card: 240 8% 8.5%;            /* --hpc-elevated #151519 */
+  --card-foreground: 240 6% 90%;
+  --card-border: 240 6% 14%;
+  --sidebar: 240 7% 6%;           /* --hpc-dark #0F0F12 */
+  --sidebar-foreground: 240 6% 90%;
+  --sidebar-border: 240 6% 14%;
+  --sidebar-primary: 42 62% 55%;  /* --hpc-gold #D4A843 */
+  --sidebar-primary-foreground: 240 5% 3.5%;
+  --sidebar-accent: 240 9% 11.5%; /* --hpc-surface #1A1A1F */
+  --sidebar-accent-foreground: 240 6% 90%;
+  --sidebar-ring: 42 62% 55%;
+  --popover: 240 8% 8.5%;
+  --popover-foreground: 240 6% 90%;
+  --popover-border: 240 6% 14%;
+  --primary: 42 62% 55%;          /* --hpc-gold #D4A843 */
+  --primary-foreground: 240 5% 3.5%;
+  --secondary: 240 9% 11.5%;      /* --hpc-surface */
+  --secondary-foreground: 240 6% 90%;
+  --muted: 240 7% 6%;             /* --hpc-dark */
+  --muted-foreground: 240 6% 78%; /* Brighter for readability: ~#C4C4CC */
+  --text-secondary: 240 8% 72%;   /* High-contrast secondary */
+  --text-tertiary: 220 9% 65%;    /* #9CA3AF (~5:1) for captions */
+  --placeholder: 240 5% 47%;      /* #71717A (~3.5:1) for placeholders */
+  --accent: 240 9% 11.5%;
+  --accent-foreground: 240 6% 90%;
+  --destructive: 0 84% 60%;       /* --hpc-error #EF4444 */
   --destructive-foreground: 0 85% 98%;
-  --input: 215 25% 18%;
-  --ring: 160 84% 39%;
-  --chart-1: 160 84% 55%;
-  --chart-2: 173 80% 58%;
+  --input: 240 8% 18%;
+  --ring: 42 62% 55%;
+  --chart-1: 42 62% 55%;          /* Gold */
+  --chart-2: 142 71% 45%;         /* Success green */
   --chart-3: 198 93% 60%;
-  --chart-4: 43 96% 60%;
-  --chart-5: 340 82% 62%;
-  --shadow-2xs: 0px 2px 0px 0px hsl(222 47% 0% / 0.15);
-  --shadow-xs: 0px 2px 0px 0px hsl(222 47% 0% / 0.18);
-  --shadow-sm: 0px 2px 0px 0px hsl(222 47% 0% / 0.15), 0px 1px 2px -1px hsl(222 47% 0% / 0.20);
-  --shadow: 0px 2px 0px 0px hsl(222 47% 0% / 0.15), 0px 1px 2px -1px hsl(222 47% 0% / 0.22);
-  --shadow-md: 0px 2px 0px 0px hsl(222 47% 0% / 0.15), 0px 2px 4px -1px hsl(222 47% 0% / 0.25);
-  --shadow-lg: 0px 2px 0px 0px hsl(222 47% 0% / 0.15), 0px 4px 6px -1px hsl(222 47% 0% / 0.28);
-  --shadow-xl: 0px 2px 0px 0px hsl(222 47% 0% / 0.15), 0px 8px 10px -1px hsl(222 47% 0% / 0.30);
-  --shadow-2xl: 0px 2px 0px 0px hsl(222 47% 0% / 0.20);
+  --chart-4: 217 91% 60%;         /* Info blue */
+  --chart-5: 0 84% 60%;           /* Error red */
+  --shadow-2xs: 0px 2px 0px 0px rgba(0,0,0,0.3);
+  --shadow-xs: 0px 2px 0px 0px rgba(0,0,0,0.35);
+  --shadow-sm: 0px 2px 8px rgba(0,0,0,0.3);
+  --shadow: 0px 4px 16px rgba(0,0,0,0.4);
+  --shadow-md: 0px 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0px 8px 32px rgba(0,0,0,0.5);
+  --shadow-xl: 0px 8px 32px rgba(0,0,0,0.5);
+  --shadow-2xl: 0px 4px 20px rgba(212,168,67,0.15);
+  /* Same font stack as light mode */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
 
-/* Fallback for older browsers */
   --sidebar-primary-border: hsl(var(--sidebar-primary));
   --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
   --sidebar-accent-border: hsl(var(--sidebar-accent));
   --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
   --primary-border: hsl(var(--primary));
   --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
   --secondary-border: hsl(var(--secondary));
   --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
   --muted-border: hsl(var(--muted));
   --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
   --accent-border: hsl(var(--accent));
   --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
   --destructive-border: hsl(var(--destructive));
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
@@ -172,7 +171,80 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    font-weight: 400;
+    line-height: 1.6;
   }
+
+  /* Dark mode: higher-contrast placeholders (WCAG 3:1 min) */
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: hsl(var(--placeholder));
+  }
+
+  /* Dark mode: more visible focus ring for inputs */
+  .dark input:focus-visible,
+  .dark textarea:focus-visible,
+  .dark select:focus-visible {
+    --tw-ring-color: hsl(var(--primary) / 0.7);
+  }
+
+  /* Subtle tint for main content area so white cards stand out */
+  main {
+    background: hsl(var(--muted) / 0.3);
+  }
+
+  /* Spacer for mobile bottom nav so content isn't hidden */
+  @media (max-width: 1023px) {
+    main {
+      padding-bottom: 4rem;
+    }
+  }
+
+  /* Premium typography hierarchy for healthcare/executive branding */
+  h1 {
+    @apply tracking-tight;
+    letter-spacing: -0.02em;
+  }
+
+  h2, h3 {
+    @apply tracking-tight;
+  }
+}
+
+/* Premium card gradient + gold glow (dark mode) */
+.dark .card-premium {
+  background: var(--hpc-grad-card);
+  border-color: rgba(212, 168, 67, 0.15);
+  box-shadow: var(--hpc-shadow-md), 0 0 0 1px rgba(212, 168, 67, 0.05);
+}
+
+/* Primary CTA gold glow */
+.dark .btn-primary-glow {
+  box-shadow: 0 4px 20px rgba(212, 168, 67, 0.25);
+}
+
+.dark .btn-primary-glow:hover {
+  box-shadow: 0 6px 28px rgba(212, 168, 67, 0.35);
+}
+
+/* Utility: visible gradient backdrop for hero sections */
+.hero-gradient {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.12) 0%,
+    hsl(var(--primary) / 0.05) 40%,
+    hsl(var(--muted) / 0.6) 100%
+  );
+  border: 1px solid hsl(var(--primary) / 0.15);
+}
+.dark .hero-gradient {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.15) 0%,
+    hsl(var(--primary) / 0.08) 40%,
+    hsl(var(--muted) / 0.4) 100%
+  );
+  border-color: hsl(var(--primary) / 0.2);
 }
 
 /**

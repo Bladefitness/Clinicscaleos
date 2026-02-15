@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { offerScoreRequestSchema, type OfferScoreRequest } from "@shared/schema";
+import { Link, useLocation } from "wouter";
 import {
   Target, ArrowRight, Loader2, CheckCircle2, AlertTriangle, TrendingUp,
-  Shield, Eye, Clock, Star, ChevronDown, ChevronUp, Lightbulb, BarChart3,
-  Plus, Gift, Percent, Timer, ShieldCheck, Gem
+  Shield, Eye, Clock, Star, ChevronDown, ChevronUp, ChevronRight, Lightbulb, BarChart3,
+  Plus, Gift, Percent, Timer, ShieldCheck, Gem, Sparkles, Zap
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,7 +22,14 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { ToastAction } from "@/components/ui/toast";
+import { useWorkflow } from "@/context/workflow-context";
+import { StickyCta } from "@/components/sticky-cta";
+import { celebrate } from "@/lib/celebrate";
 import { CLINIC_TYPES } from "@/lib/constants";
+import { LAUNCH_PLAN_STEPS } from "@/lib/launch-plan-steps";
 
 const SERVICES_BY_CLINIC: Record<string, string[]> = {
   "Med Spa": ["Botox", "Dermal Fillers", "Laser Hair Removal", "Chemical Peels", "Microneedling", "PRP Facial", "CoolSculpting", "IPL Photofacial"],
@@ -139,12 +148,12 @@ function SuggestionChips({ options, onSelect, selectedValue, testIdPrefix }: {
   testIdPrefix: string;
 }) {
   return (
-    <div className="flex flex-wrap gap-1.5 mt-2">
+    <div className="flex flex-wrap gap-2 mt-2">
       {options.map((opt, i) => (
         <Badge
           key={i}
           variant={selectedValue === opt ? "default" : "outline"}
-          className={`cursor-pointer text-xs ${selectedValue === opt ? "bg-emerald-600 text-white" : ""}`}
+          className={`cursor-pointer text-[13px] py-1.5 px-3 font-medium ${selectedValue === opt ? "bg-primary text-primary-foreground" : "text-foreground"}`}
           onClick={() => onSelect(opt)}
           data-testid={`${testIdPrefix}-${i}`}
         >
@@ -164,7 +173,7 @@ const SCORE_LABELS: Record<string, { icon: any; label: string }> = {
 };
 
 function ScoreBar({ value, label, icon: Icon }: { value: number; label: string; icon: any }) {
-  const color = value >= 7 ? "bg-emerald-500" : value >= 5 ? "bg-amber-500" : "bg-red-500";
+  const color = value >= 7 ? "bg-primary" : value >= 5 ? "bg-amber-500" : "bg-red-500";
   return (
     <div className="flex items-center gap-3">
       <div className="w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
@@ -172,8 +181,8 @@ function ScoreBar({ value, label, icon: Icon }: { value: number; label: string; 
       </div>
       <div className="flex-1">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-medium text-foreground">{label}</span>
-          <span className="text-xs font-bold text-foreground">{value}/10</span>
+          <span className="text-[13px] font-medium text-foreground">{label}</span>
+          <span className="text-[13px] font-bold text-foreground">{value}/10</span>
         </div>
         <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
           <div className={`h-full rounded-full ${color} transition-all duration-500`} style={{ width: `${value * 10}%` }} />
@@ -183,10 +192,31 @@ function ScoreBar({ value, label, icon: Icon }: { value: number; label: string; 
   );
 }
 
+const WIZARD_STEPS = [
+  { title: "Clinic & Service", fields: ["clinicType", "service", "location", "price"] as const },
+  { title: "Audience", fields: ["targetMarket", "differentiator"] as const },
+  { title: "Build Offer", fields: ["currentOffer"] as const },
+];
+
 export default function OfferLab() {
+  const { toast } = useToast();
+  const { setOfferLab } = useWorkflow();
   const [result, setResult] = useState<any>(null);
   const [expandedVariation, setExpandedVariation] = useState<number | null>(null);
+  const [pendingFinalize, setPendingFinalize] = useState<number | null>(null);
+  const [finalOfferText, setFinalOfferText] = useState<string>("");
   const [selectedBlocks, setSelectedBlocks] = useState<string[]>([]);
+  const [wizardStep, setWizardStep] = useState(1);
+  const [, setLocation] = useLocation();
+  const formCardRef = useRef<HTMLDivElement>(null);
+
+  // Deep link from Launch Plan flowchart: /offer-lab?step=1|2|3
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const step = new URLSearchParams(window.location.search).get("step");
+    const n = step ? parseInt(step, 10) : NaN;
+    if (n >= 1 && n <= 3) setWizardStep(n);
+  }, []);
 
   const form = useForm<OfferScoreRequest>({
     resolver: zodResolver(offerScoreRequestSchema),
@@ -224,9 +254,42 @@ export default function OfferLab() {
       const res = await apiRequest("POST", "/api/offers/score", data);
       return res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
+      if (data.source === "error" || !data.offer?.score) {
+        toast({
+          title: "Scoring failed",
+          description: data.error || "AI could not analyze your offer. Please try again.",
+          variant: "destructive",
+          action: (
+            <ToastAction altText="Retry" onClick={() => scoreMutation.mutate(variables)}>
+              Retry
+            </ToastAction>
+          ),
+        });
+        return;
+      }
       setResult(data.offer);
+      celebrate();
+      setOfferLab({
+        clinicType: variables.clinicType,
+        service: variables.service,
+        currentOffer: variables.currentOffer || "",
+        location: variables.location || "",
+        targetMarket: variables.targetMarket || "",
+      });
       queryClient.invalidateQueries({ queryKey: ["/api/offers"] });
+    },
+    onError: (err: Error, variables) => {
+      toast({
+        title: "Could not score offer",
+        description: err.message || "Check your connection and ANTHROPIC_API_KEY, then try again.",
+        variant: "destructive",
+        action: (
+          <ToastAction altText="Retry" onClick={() => scoreMutation.mutate(variables)}>
+            Retry
+          </ToastAction>
+        ),
+      });
     },
   });
 
@@ -234,20 +297,44 @@ export default function OfferLab() {
     scoreMutation.mutate(data);
   };
 
+  const validateStep = async (step: number) => {
+    const fields = WIZARD_STEPS[step - 1].fields;
+    const ok = await form.trigger(fields as any);
+    return ok;
+  };
+
+  const goNext = async () => {
+    if (wizardStep < 3) {
+      const ok = await validateStep(wizardStep);
+      if (ok) setWizardStep((s) => s + 1);
+    }
+  };
+
+  const goBack = () => setWizardStep((s) => Math.max(1, s - 1));
+
   if (scoreMutation.isPending) {
     return (
       <div className="flex-1 p-6 lg:p-10 overflow-auto">
-        <div className="max-w-lg mx-auto flex flex-col items-center justify-center min-h-[60vh]">
-          <div className="relative mb-8">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center animate-pulse shadow-lg shadow-emerald-500/20">
-              <Target className="w-10 h-10 text-white" />
+        <div className="max-w-5xl mx-auto">
+          <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Offer Lab", href: "/offer-lab" }, { label: "Analyzing..." }]} className="mb-6" />
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-16 w-16 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-64" />
+              </div>
             </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Skeleton className="h-32 rounded-lg" />
+              <Skeleton className="h-32 rounded-lg lg:col-span-2" />
+            </div>
+            <Skeleton className="h-40 w-full rounded-lg" />
           </div>
-          <h2 className="text-xl font-bold text-foreground mb-2">Analyzing Your Offer</h2>
-          <p className="text-muted-foreground text-center max-w-sm">
-            Scoring clarity, urgency, risk reversal, specificity, and value perception...
-          </p>
-          <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mt-6" />
+          <div className="mt-8 flex flex-col items-center">
+            <Loader2 className="w-6 h-6 text-primary animate-spin" />
+            <p className="text-sm text-muted-foreground mt-3">Scoring clarity, urgency, risk reversal, and value perception...</p>
+          </div>
         </div>
       </div>
     );
@@ -257,17 +344,89 @@ export default function OfferLab() {
     const breakdown = result.scoreBreakdown as Record<string, number>;
     const variations = (result.variations || []) as any[];
     const competitorData = result.competitorData as any;
-    const scoreColor = result.score >= 7 ? "text-emerald-500" : result.score >= 5 ? "text-amber-500" : "text-red-500";
+    const marketBenchmarks = result.marketBenchmarks as Record<string, number> | undefined;
+    const scoreColor = result.score >= 7 ? "text-primary" : result.score >= 5 ? "text-amber-500" : "text-red-500";
+    const originalOffer = result.currentOffer || "";
+    const chosenIndex = pendingFinalize;
+    const chosenVariation = chosenIndex !== null ? variations[chosenIndex] : null;
+    const projectedScore = chosenVariation?.projected_score ?? result.score;
+    const scoreDelta = projectedScore - result.score;
+
+    if (chosenIndex !== null && chosenVariation) {
+      const offerToFinalize = finalOfferText || chosenVariation.offer_text;
+      return (
+        <div className="flex-1 p-6 lg:p-10 overflow-auto">
+          <div className="max-w-4xl mx-auto">
+            <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Offer Lab", href: "/offer-lab" }, { label: "Results" }, { label: "Finalize" }]} className="mb-6" />
+            <h1 className="text-2xl font-bold text-foreground mb-2">Review & finalize your offer</h1>
+            <p className="text-muted-foreground text-sm mb-6">Compare your original to the chosen variation, edit if needed, then lock it in for Creative Factory.</p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <Card className="p-5">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Original offer</p>
+                <p className="text-2xl font-bold text-muted-foreground mb-2">{result.score}/10</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{originalOffer}</p>
+              </Card>
+              <Card className="p-5 border-primary/30">
+                <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">Your chosen offer</p>
+                <p className="text-2xl font-bold text-primary mb-2">{projectedScore}/10</p>
+                {scoreDelta > 0 && (
+                  <p className="text-xs text-primary font-medium mb-2">+{scoreDelta} points from adding urgency, risk reversal, and specificity</p>
+                )}
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{chosenVariation.offer_text}</p>
+              </Card>
+            </div>
+
+            <Card className="p-6 mb-6">
+              <p className="text-sm font-semibold text-foreground mb-2">Final offer (edit if you like)</p>
+              <p className="text-xs text-muted-foreground mb-2">This text will be used in Creative Factory for your ad copy.</p>
+              <Textarea
+                value={offerToFinalize}
+                onChange={(e) => setFinalOfferText(e.target.value)}
+                className="min-h-[120px] resize-y"
+                placeholder="Your finalized offer..."
+              />
+            </Card>
+
+            <div className="flex flex-wrap gap-3">
+              <Button variant="outline" onClick={() => { setPendingFinalize(null); setFinalOfferText(""); }}>
+                Back to results
+              </Button>
+              <Button
+                className="btn-primary-glow gap-2"
+                onClick={() => {
+                  setOfferLab({
+                    clinicType: result.clinicType || "",
+                    service: result.service || "",
+                    currentOffer: offerToFinalize.trim() || chosenVariation.offer_text,
+                    location: result.location || "",
+                    targetMarket: result.targetMarket || "",
+                  });
+                  setPendingFinalize(null);
+                  setFinalOfferText("");
+                  setLocation("/creative-factory");
+                  toast({ title: "Offer finalized", description: "Create ads in Creative Factory with this offer." });
+                }}
+              >
+                <Sparkles className="w-4 h-4" />
+                Finalize & create ads
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="flex-1 p-6 lg:p-10 overflow-auto">
         <div className="max-w-5xl mx-auto">
+          <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Offer Lab", href: "/offer-lab" }, { label: "Results" }]} className="mb-6" />
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
             <div>
               <h1 className="text-2xl font-bold text-foreground" data-testid="text-offer-results">Offer Analysis</h1>
               <p className="text-muted-foreground text-sm mt-1">AI-powered scoring and optimization suggestions</p>
             </div>
-            <Button variant="outline" onClick={() => { setResult(null); form.reset(); setSelectedBlocks([]); }} data-testid="button-new-offer">
+            <Button variant="outline" onClick={() => { setResult(null); form.reset(); setSelectedBlocks([]); setWizardStep(1); }} data-testid="button-new-offer">
               New Offer
             </Button>
           </div>
@@ -285,7 +444,17 @@ export default function OfferLab() {
                 {breakdown && Object.entries(breakdown).map(([key, val]) => {
                   const meta = SCORE_LABELS[key];
                   if (!meta) return null;
-                  return <ScoreBar key={key} value={val} label={meta.label} icon={meta.icon} />;
+                  const marketVal = marketBenchmarks?.[key];
+                  return (
+                    <div key={key}>
+                      <ScoreBar value={val} label={meta.label} icon={meta.icon} />
+                      {typeof marketVal === "number" && (
+                        <p className="text-[11px] text-muted-foreground mt-0.5 ml-11">
+                          Market avg: {marketVal}/10 {val < marketVal && <span className="text-amber-600 dark:text-amber-400">(gap: {marketVal - val})</span>}
+                        </p>
+                      )}
+                    </div>
+                  );
                 })}
               </div>
             </Card>
@@ -297,29 +466,78 @@ export default function OfferLab() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
               <div>
-                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-2">Strengths</p>
+                <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">Strengths</p>
                 <div className="space-y-1.5">
                   {(result.strengths || []).map((s: string, i: number) => (
                     <div key={i} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
                       <span className="text-sm text-foreground">{s}</span>
                     </div>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider mb-2">Weaknesses</p>
-                <div className="space-y-1.5">
-                  {(result.weaknesses || []).map((w: string, i: number) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <AlertTriangle className="w-3.5 h-3.5 text-red-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-foreground">{w}</span>
-                    </div>
-                  ))}
+                <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">Add these for a 9+ offer</p>
+                <div className="space-y-2">
+                  {[...(result.weaknesses || [])]
+                    .sort((a: any, b: any) => {
+                      const order = { high: 0, medium: 1, low: 2 };
+                      const ai = typeof a === "object" ? (order[a.impact] ?? 1) : 1;
+                      const bi = typeof b === "object" ? (order[b.impact] ?? 1) : 1;
+                      return ai - bi;
+                    })
+                    .map((w: any, i: number) => {
+                      const issue = typeof w === "string" ? w : w?.issue ?? String(w);
+                      const impact = typeof w === "object" && w?.impact ? w.impact : "medium";
+                      const fixSuggestion = typeof w === "object" && w?.fix_suggestion ? w.fix_suggestion : null;
+                      return (
+                        <div key={i} className="flex items-start gap-2">
+                          <AlertTriangle className="w-3.5 h-3.5 text-red-500 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="text-sm text-foreground">{issue}</span>
+                            {fixSuggestion && (
+                              <p className="text-xs text-primary mt-1 font-medium">{fixSuggestion}</p>
+                            )}
+                            <Badge variant={impact === "high" ? "destructive" : "secondary"} className="text-[10px] mt-1">
+                              {impact} impact
+                            </Badge>
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             </div>
           </Card>
+
+          {(result.improvementRoadmap || []).length > 0 && (
+            <Card className="p-6 mb-6 border-primary/20">
+              <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                <Zap className="w-5 h-5 text-amber-500" />
+                How to get to a 9+ offer
+              </h2>
+              <ol className="space-y-3">
+                {result.improvementRoadmap.map((item: any, i: number) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center flex-shrink-0">
+                      {item.priority ?? i + 1}
+                    </span>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{item.action}</p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <Badge variant={item.impact === "quick_win" ? "default" : "outline"} className="text-[10px]">
+                          {item.impact === "quick_win" ? "Quick win" : item.impact === "high_effort" ? "Bigger lift" : "Medium"}
+                        </Badge>
+                        {item.metric_improved && (
+                          <span className="text-xs text-muted-foreground">Improves: {item.metric_improved}</span>
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </Card>
+          )}
 
           {variations.length > 0 && (
             <div className="mb-6">
@@ -331,29 +549,57 @@ export default function OfferLab() {
                 {variations.map((v: any, i: number) => (
                   <Card
                     key={i}
-                    className={`p-5 cursor-pointer transition-all ${expandedVariation === i ? "ring-2 ring-emerald-500/30" : ""}`}
-                    onClick={() => setExpandedVariation(expandedVariation === i ? null : i)}
+                    className={`p-5 transition-all ${expandedVariation === i ? "ring-2 ring-primary/30" : ""}`}
                     data-testid={`card-variation-${i}`}
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2 flex-wrap">
-                          <Badge variant="secondary" className="text-xs">
-                            Projected: {v.projected_score}/10
-                          </Badge>
-                          <Badge variant={v.risk_level === "low" ? "secondary" : v.risk_level === "medium" ? "outline" : "destructive"} className="text-xs">
-                            {v.risk_level} risk
-                          </Badge>
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => setExpandedVariation(expandedVariation === i ? null : i)}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2 flex-wrap">
+                            <Badge variant="secondary" className="text-xs">
+                              Projected: {v.projected_score}/10
+                            </Badge>
+                            <Badge variant={v.risk_level === "low" ? "secondary" : v.risk_level === "medium" ? "outline" : "destructive"} className="text-xs">
+                              {v.risk_level} risk
+                            </Badge>
+                            {(v.weaknesses_addressed || []).length > 0 && (
+                              <Badge variant="outline" className="text-xs text-primary border-primary/50">
+                                Fixes: {(v.weaknesses_addressed as string[]).slice(0, 2).join(", ")}
+                                {(v.weaknesses_addressed as string[]).length > 2 ? "..." : ""}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm font-medium text-foreground">{v.offer_text}</p>
                         </div>
-                        <p className="text-sm font-medium text-foreground">{v.offer_text}</p>
+                        {expandedVariation === i ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
                       </div>
-                      {expandedVariation === i ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
                     </div>
                     {expandedVariation === i && (
                       <div className="mt-3 pt-3 border-t border-border">
                         <p className="text-sm text-muted-foreground">{v.reasoning}</p>
                       </div>
                     )}
+                    <div className="mt-3 pt-3 border-t border-border">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-2 w-full sm:w-auto"
+                        onClick={async () => {
+                          if (result?.id) {
+                            apiRequest("PATCH", `/api/offers/${result.id}/select-variation`, { variationIndex: i }).catch(() => {});
+                          }
+                          setFinalOfferText(v.offer_text);
+                          setPendingFinalize(i);
+                        }}
+                        data-testid={`button-use-offer-${i}`}
+                      >
+                        <ArrowRight className="w-3.5 h-3.5" />
+                        Use this offer
+                      </Button>
+                    </div>
                   </Card>
                 ))}
               </div>
@@ -372,13 +618,26 @@ export default function OfferLab() {
                   {(competitorData.market_temperature || "mixed").replace("_", " ")}
                 </Badge>
               </div>
+              {competitorData.common_competitor_offers && competitorData.common_competitor_offers.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">What competitors typically offer</p>
+                  <ul className="space-y-1.5">
+                    {competitorData.common_competitor_offers.map((offer: string, i: number) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                        <span className="text-muted-foreground">•</span>
+                        <span>{offer}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {competitorData.differentiation_opportunities && (
                 <div className="mb-4">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Differentiation Opportunities</p>
                   <div className="space-y-1.5">
                     {competitorData.differentiation_opportunities.map((d: string, i: number) => (
                       <div key={i} className="flex items-start gap-2">
-                        <TrendingUp className="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                        <TrendingUp className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
                         <span className="text-sm text-foreground">{d}</span>
                       </div>
                     ))}
@@ -397,6 +656,18 @@ export default function OfferLab() {
               )}
             </Card>
           )}
+
+          <Card className="card-premium p-6 mt-8 border-primary/20">
+            <h3 className="text-sm font-semibold text-foreground mb-2">What&apos;s next?</h3>
+            <p className="text-sm text-muted-foreground mb-4">Turn this offer into scroll-stopping ads.</p>
+            <Link href="/creative-factory">
+              <Button className="btn-primary-glow gap-2">
+                <Sparkles className="w-4 h-4" />
+                Create ads in Creative Factory
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </Card>
         </div>
       </div>
     );
@@ -405,23 +676,44 @@ export default function OfferLab() {
   return (
     <div className="flex-1 p-6 lg:p-10 overflow-auto">
       <div className="max-w-3xl mx-auto">
+        <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Offer Lab" }]} className="mb-6" />
         <div className="text-center mb-8">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-medium mb-4">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[13px] font-medium mb-4">
             <Target className="w-3.5 h-3.5" />
             Module 1: Offer Intelligence
           </span>
-          <h1 className="text-3xl font-bold text-foreground mb-2" data-testid="text-offer-lab-title">Offer Lab</h1>
+          <h1 className="text-3xl font-bold font-sans text-foreground mb-2" data-testid="text-offer-lab-title">Offer Lab</h1>
           <p className="text-muted-foreground max-w-lg mx-auto">
             Build a high-converting offer using proven templates, then let AI score and optimize it.
           </p>
+          <p className="text-xs text-muted-foreground max-w-lg mx-auto mt-2 italic">
+            Why? {LAUNCH_PLAN_STEPS.find((s) => s.id === "offer")?.whyBullets[0]}
+          </p>
         </div>
 
-        <Card className="p-6 lg:p-8">
+        <Card ref={formCardRef} className="p-6 lg:p-8 dark:border-primary/20 dark:shadow-[0_0_0_1px_rgba(212,168,67,0.08)]">
+          <div className="flex items-center justify-between mb-6">
+            {WIZARD_STEPS.map((s, i) => (
+              <div key={s.title} className="flex items-center gap-2">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                    wizardStep > i + 1 ? "bg-primary text-primary-foreground" : wizardStep === i + 1 ? "bg-primary/20 text-primary border-2 border-primary" : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {wizardStep > i + 1 ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
+                </div>
+                <span className={`text-sm font-medium hidden sm:inline ${wizardStep >= i + 1 ? "text-foreground" : "text-muted-foreground"}`}>{s.title}</span>
+                {i < WIZARD_STEPS.length - 1 && <ChevronRight className="w-4 h-4 text-muted-foreground hidden md:inline" />}
+              </div>
+            ))}
+          </div>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            <form id="offer-form" onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+              {wizardStep === 1 && (
+              <>
               <FormField control={form.control} name="clinicType" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>What type of clinic do you run? <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">What type of clinic do you run? <span className="text-red-500">*</span></FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl><SelectTrigger data-testid="select-offer-clinic-type"><SelectValue placeholder="Select your clinic type" /></SelectTrigger></FormControl>
                     <SelectContent>{CLINIC_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
@@ -432,7 +724,7 @@ export default function OfferLab() {
 
               <FormField control={form.control} name="service" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>What service are you promoting? <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">What service are you promoting? <span className="text-red-500">*</span></FormLabel>
                   <FormControl><Input placeholder="Type or pick a service below..." data-testid="input-offer-service" {...field} /></FormControl>
                   {serviceOptions.length > 0 && (
                     <SuggestionChips
@@ -449,14 +741,14 @@ export default function OfferLab() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <FormField control={form.control} name="location" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Location <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel className="text-sm font-medium text-foreground">Location <span className="text-red-500">*</span></FormLabel>
                     <FormControl><Input placeholder="e.g., Miami, FL" data-testid="input-offer-location" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="price" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price Point</FormLabel>
+                    <FormLabel className="text-sm font-medium text-foreground">Price Point</FormLabel>
                     <FormControl><Input placeholder="Type or pick below..." data-testid="input-offer-price" {...field} /></FormControl>
                     <SuggestionChips
                       options={PRICE_PRESETS.map((p) => p.label)}
@@ -471,10 +763,20 @@ export default function OfferLab() {
                   </FormItem>
                 )} />
               </div>
+              <div className="flex justify-end">
+                <Button type="button" onClick={goNext} className="btn-primary-glow gap-2">
+                  Next: Audience
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+              </>
+              )}
 
+              {wizardStep === 2 && (
+              <>
               <FormField control={form.control} name="targetMarket" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Who is this offer for?</FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">Who is this offer for?</FormLabel>
                   <FormControl><Input placeholder="Type or pick a target audience..." data-testid="input-target-market" {...field} /></FormControl>
                   <SuggestionChips
                     options={TARGET_MARKET_PRESETS}
@@ -488,7 +790,7 @@ export default function OfferLab() {
 
               <FormField control={form.control} name="differentiator" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>What makes you different?</FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">What makes you different?</FormLabel>
                   <FormControl><Input placeholder="Type or pick a differentiator..." data-testid="input-differentiator" {...field} /></FormControl>
                   <SuggestionChips
                     options={DIFFERENTIATOR_PRESETS}
@@ -499,12 +801,23 @@ export default function OfferLab() {
                   <FormMessage />
                 </FormItem>
               )} />
+              <div className="flex justify-between">
+                <Button type="button" variant="outline" onClick={goBack}>Back</Button>
+                <Button type="button" onClick={goNext} className="btn-primary-glow gap-2">
+                  Next: Build Offer
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+              </>
+              )}
 
+              {wizardStep === 3 && (
+              <>
               <div>
                 <FormField control={form.control} name="currentOffer" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Build Your Offer <span className="text-red-500">*</span></FormLabel>
-                    <p className="text-xs text-muted-foreground mb-3">
+                    <FormLabel className="text-sm font-medium text-foreground">Build Your Offer <span className="text-red-500">*</span></FormLabel>
+                    <p className="text-sm text-muted-foreground mb-3">
                       Click the building blocks below to assemble your offer, or type it manually.
                     </p>
                     <FormControl>
@@ -518,17 +831,17 @@ export default function OfferLab() {
                   {OFFER_BUILDING_BLOCKS.map((block) => (
                     <div key={block.category}>
                       <div className="flex items-center gap-2 mb-2">
-                        <block.icon className="w-3.5 h-3.5 text-muted-foreground" />
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{block.label}</span>
+                        <block.icon className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground uppercase tracking-wider">{block.label}</span>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-2">
                         {block.templates.map((tmpl, ti) => {
                           const isSelected = selectedBlocks.includes(tmpl);
                           return (
                             <Badge
                               key={ti}
                               variant={isSelected ? "default" : "outline"}
-                              className={`cursor-pointer text-xs ${isSelected ? "bg-emerald-600 text-white" : ""}`}
+                              className={`cursor-pointer text-[13px] py-1.5 px-3 font-medium ${isSelected ? "bg-primary text-primary-foreground" : "text-foreground"}`}
                               onClick={() => isSelected ? removeOfferBlock(tmpl) : addOfferBlock(tmpl)}
                               data-testid={`chip-offer-${block.category}-${ti}`}
                             >
@@ -548,8 +861,8 @@ export default function OfferLab() {
               </div>
 
               {watchedOffer && (
-                <Card className="p-4 bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800">
-                  <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-2">Offer Preview</p>
+                <Card className="p-4 bg-primary/5 border-primary/20">
+                  <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">Offer Preview</p>
                   <p className="text-sm text-foreground leading-relaxed" data-testid="text-offer-preview">
                     {watchedService && <span className="font-semibold">{watchedService}</span>}
                     {watchedPrice && <span> at {watchedPrice}</span>}
@@ -559,15 +872,37 @@ export default function OfferLab() {
                   </p>
                 </Card>
               )}
-
-              <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white no-default-hover-elevate no-default-active-elevate" data-testid="button-score-offer">
+              <div className="flex justify-between">
+                <Button type="button" variant="outline" onClick={goBack}>Back</Button>
+                <Button type="submit" className="btn-primary-glow bg-primary hover:bg-primary/90 text-primary-foreground no-default-hover-elevate no-default-active-elevate" data-testid="button-score-offer">
                 <Target className="w-4 h-4 mr-2" />
                 Score My Offer
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
+              </div>
+              </>
+              )}
             </form>
           </Form>
         </Card>
+        <StickyCta formRef={formCardRef}>
+          <div className="flex gap-2 w-full max-w-md mx-auto">
+            {wizardStep > 1 && (
+              <Button variant="outline" onClick={goBack} className="flex-1">Back</Button>
+            )}
+            {wizardStep < 3 ? (
+              <Button onClick={goNext} className="btn-primary-glow flex-1 gap-2">
+                Next: {WIZARD_STEPS[wizardStep]?.title || ""}
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            ) : (
+              <Button form="offer-form" type="submit" className="btn-primary-glow flex-1 gap-2" data-testid="button-score-offer-sticky">
+                <Target className="w-4 h-4" />
+                Score My Offer
+              </Button>
+            )}
+          </div>
+        </StickyCta>
       </div>
     </div>
   );

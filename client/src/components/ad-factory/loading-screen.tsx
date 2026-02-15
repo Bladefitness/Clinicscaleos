@@ -32,9 +32,9 @@ export function LoadingScreen({ progress, activeStage }: LoadingScreenProps) {
   return (
     <div className="max-w-lg mx-auto flex flex-col items-center justify-center min-h-[70vh]">
       <div className="relative mb-10">
-        <div className="absolute inset-0 w-28 h-28 rounded-full bg-emerald-400/30 animate-ping-slow" />
-        <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center animate-pulse-scale shadow-lg shadow-emerald-500/20">
-          <Sparkles className="w-10 h-10 text-white animate-spin-slow" />
+        <div className="absolute inset-0 w-28 h-28 rounded-full bg-primary/30 animate-ping-slow" />
+        <div className="relative w-28 h-28 rounded-full bg-primary flex items-center justify-center animate-pulse-scale shadow-lg shadow-primary/20">
+          <Sparkles className="w-10 h-10 text-primary-foreground animate-spin-slow" />
         </div>
       </div>
 
@@ -43,9 +43,9 @@ export function LoadingScreen({ progress, activeStage }: LoadingScreenProps) {
           <span className="font-semibold text-foreground">{Math.round(progress)}%</span>
           <span className="text-muted-foreground">Generating...</span>
         </div>
-        <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+        <div className="h-2.5 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 transition-all duration-300 ease-out"
+            className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
             style={{ width: `${progress}%` }}
             data-testid="progress-bar"
           />
@@ -62,11 +62,11 @@ export function LoadingScreen({ progress, activeStage }: LoadingScreenProps) {
           return (
             <div
               key={i}
-              className={`flex items-center gap-3 px-4 py-3 rounded-md transition-all duration-300 ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                 isDone
-                  ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400"
+                  ? "bg-primary/10 text-primary"
                   : isActive
-                  ? "bg-slate-50 dark:bg-slate-800/50 text-foreground"
+                  ? "bg-muted/80 text-foreground"
                   : "opacity-40 text-muted-foreground"
               }`}
               style={{
@@ -76,9 +76,9 @@ export function LoadingScreen({ progress, activeStage }: LoadingScreenProps) {
               data-testid={`stage-${i}`}
             >
               {isDone ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
               ) : isActive ? (
-                <Loader2 className="w-4 h-4 animate-spin text-emerald-500 flex-shrink-0" />
+                <Loader2 className="w-4 h-4 animate-spin text-primary flex-shrink-0" />
               ) : (
                 <Icon className="w-4 h-4 flex-shrink-0" />
               )}

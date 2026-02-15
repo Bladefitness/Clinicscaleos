@@ -39,7 +39,7 @@ export function CopyButton({ text, label, variant = "ghost", size = "sm", classN
       data-testid={`button-copy-${label.toLowerCase().replace(/\s/g, "-")}`}
     >
       {copied ? (
-        <Check className="w-3 h-3 text-emerald-500" />
+        <Check className="w-3 h-3 text-primary" />
       ) : (
         <Copy className="w-3 h-3" />
       )}

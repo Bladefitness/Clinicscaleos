@@ -24,6 +24,7 @@ import { generateImage } from "./replit_integrations/image/client";
 import { animateImage as runwayAnimateImage } from "./lib/runway";
 import { animateImageWithFal } from "./lib/fal-animate";
 import { registerVideoStudioRoutes } from "./routes-video-studio";
+import { registerResearchRoutes } from "./routes-research";
 
 let _anthropic: Anthropic | null = null;
 
@@ -240,6 +241,7 @@ export async function registerRoutes(
   });
 
   registerVideoStudioRoutes(app);
+  registerResearchRoutes(app);
 
   // ==========================================
   // META FACEBOOK OAUTH

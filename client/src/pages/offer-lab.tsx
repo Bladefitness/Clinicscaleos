@@ -176,7 +176,7 @@ function ScoreBar({ value, label, icon: Icon }: { value: number; label: string; 
   const color = value >= 7 ? "bg-primary" : value >= 5 ? "bg-amber-500" : "bg-red-500";
   return (
     <div className="flex items-center gap-3">
-      <div className="w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+      <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center flex-shrink-0">
         <Icon className="w-4 h-4 text-muted-foreground" />
       </div>
       <div className="flex-1">
@@ -184,7 +184,7 @@ function ScoreBar({ value, label, icon: Icon }: { value: number; label: string; 
           <span className="text-[13px] font-medium text-foreground">{label}</span>
           <span className="text-[13px] font-bold text-foreground">{value}/10</span>
         </div>
-        <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
           <div className={`h-full rounded-full ${color} transition-all duration-500`} style={{ width: `${value * 10}%` }} />
         </div>
       </div>
@@ -450,7 +450,7 @@ export default function OfferLab() {
                       <ScoreBar value={val} label={meta.label} icon={meta.icon} />
                       {typeof marketVal === "number" && (
                         <p className="text-[11px] text-muted-foreground mt-0.5 ml-11">
-                          Market avg: {marketVal}/10 {val < marketVal && <span className="text-amber-600 dark:text-amber-400">(gap: {marketVal - val})</span>}
+                          Market avg: {marketVal}/10 {val < marketVal && <span className="text-amber-400">(gap: {marketVal - val})</span>}
                         </p>
                       )}
                     </div>

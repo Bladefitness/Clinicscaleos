@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build:client && npm run build:api",
+  "outputDirectory": "dist/public",
+  "framework": null,
+  "functions": {
+    "api/index.mjs": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/health", "destination": "/api" },
+    { "source": "/auth/(.*)", "destination": "/api" },
+    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+  ]
+}

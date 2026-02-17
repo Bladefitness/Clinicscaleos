@@ -116,7 +116,7 @@ export default function AdCoach() {
           <p className="text-xs text-muted-foreground mt-2 italic">Why? {LAUNCH_PLAN_STEPS.find((s) => s.id === "coach")?.whyBullets[0]}</p>
         </div>
 
-        <div className="flex items-center gap-1 mb-6 bg-slate-100 dark:bg-slate-800 p-1 rounded-md w-fit flex-wrap">
+        <div className="flex items-center gap-1 mb-6 bg-muted p-1 rounded-md w-fit flex-wrap">
           {tabs.map((tab) => (
             <Button
               key={tab.id}
@@ -197,7 +197,7 @@ export default function AdCoach() {
               <h3 className="text-sm font-semibold text-foreground mb-3">Action Items</h3>
               <div className="space-y-2">
                 {(pulse.actions || []).map((a: any, i: number) => (
-                  <div key={i} className="flex items-start gap-3 p-3 rounded-md bg-slate-50 dark:bg-slate-800/30">
+                  <div key={i} className="flex items-start gap-3 p-3 rounded-md bg-muted/50">
                     <Badge variant={a.priority === "high" ? "destructive" : a.priority === "medium" ? "default" : "secondary"} className="text-[10px] mt-0.5 flex-shrink-0">
                       {a.priority}
                     </Badge>
@@ -277,7 +277,7 @@ export default function AdCoach() {
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Recommendations</p>
                     <div className="space-y-2">
                       {(weekly.recommendations || []).map((r: any, i: number) => (
-                        <div key={i} className="flex items-start gap-3 p-3 rounded-md bg-slate-50 dark:bg-slate-800/30">
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-md bg-muted/50">
                           <Badge variant={r.priority === "high" ? "destructive" : "secondary"} className="text-[10px] mt-0.5 flex-shrink-0">{r.priority}</Badge>
                           <div>
                             <p className="text-sm font-medium text-foreground">{r.action}</p>
@@ -307,7 +307,7 @@ export default function AdCoach() {
                       className={`rounded-md px-4 py-3 text-sm leading-relaxed ${
                         msg.role === "user"
                           ? "bg-primary text-primary-foreground"
-                          : "bg-slate-100 dark:bg-slate-800 text-foreground"
+                          : "bg-muted text-foreground"
                       }`}
                       data-testid={`chat-message-${i}`}
                     >
@@ -332,7 +332,7 @@ export default function AdCoach() {
               ))}
               {chatMutation.isPending && (
                 <div className="flex justify-start">
-                  <div className="bg-slate-100 dark:bg-slate-800 rounded-md px-4 py-3">
+                  <div className="bg-muted rounded-md px-4 py-3">
                     <Loader2 className="w-4 h-4 animate-spin text-primary" />
                   </div>
                 </div>

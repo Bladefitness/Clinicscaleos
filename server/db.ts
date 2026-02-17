@@ -12,7 +12,7 @@ function ensureDb(): { pool: Pool; db: NodePgDatabase<typeof schema> } {
     if (!_pool) {
           if (!process.env.DATABASE_URL) {
                   throw new Error(
-                            "DATABASE_URL must be set. Add it to Railway Variables or your .env file.",
+                            "DATABASE_URL must be set. Add it to Vercel Environment Variables or your .env file.",
                           );
           }
           _pool = new Pool({ connectionString: process.env.DATABASE_URL });

@@ -1,14 +1,11 @@
 import { Link, useLocation } from "wouter";
 import {
   LayoutDashboard,
+  Search,
   Sparkles,
   Target,
   Map,
   MessageSquare,
-  RefreshCw,
-  Zap,
-  Wrench,
-  Video,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -28,13 +25,11 @@ import {
 
 const navItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard, badge: null },
+  { title: "Research Portal", href: "/research-portal", icon: Search, badge: "M0" },
   { title: "Offer Lab", href: "/offer-lab", icon: Target, badge: "M1" },
   { title: "Creative Factory", href: "/creative-factory", icon: Sparkles, badge: "M2" },
   { title: "Campaign HQ", href: "/campaign-hq", icon: Map, badge: "M3" },
   { title: "Ad Coach", href: "/ad-coach", icon: MessageSquare, badge: "M4" },
-  { title: "Iteration Lab", href: "/iteration-lab", icon: RefreshCw, badge: "M5" },
-  { title: "AI Tools", href: "/ai-tools", icon: Wrench, badge: null },
-  { title: "Video Studio", href: "/video-studio", icon: Video, badge: null },
 ];
 
 export function AppSidebar() {
@@ -44,9 +39,11 @@ export function AppSidebar() {
     <Sidebar data-testid="sidebar">
       <SidebarHeader className="p-4 pb-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
-            <Zap className="w-5 h-5 text-primary-foreground" />
-          </div>
+          <img
+            src="https://storage.googleapis.com/msgsndr/W7BRJwzJCvFs9r0xZHrE/media/689fb981bccb296d0b10507e.png"
+            alt="Clinic Growth OS"
+            className="w-10 h-10 rounded-xl flex-shrink-0 shadow-sm object-cover"
+          />
           <div className="min-w-0">
             <h1 className="text-sidebar-foreground font-bold text-sm leading-tight truncate">Clinic Growth OS</h1>
             <p className="text-sidebar-foreground/90 text-xs uppercase tracking-wider mt-0.5">Dominate your market</p>

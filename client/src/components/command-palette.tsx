@@ -12,11 +12,11 @@ import {
 import { CommandShortcut } from "@/components/ui/command";
 import {
   LayoutDashboard,
+  Search,
   Target,
   Sparkles,
   Map,
   MessageSquare,
-  RefreshCw,
 } from "lucide-react";
 
 const RECENT_KEY = "clinic-growth-recent-pages";
@@ -24,11 +24,11 @@ const MAX_RECENT = 4;
 
 const commands = [
   { id: "dashboard", label: "Dashboard", href: "/", icon: LayoutDashboard, shortcut: "⌘1" },
+  { id: "research-portal", label: "Research Portal", href: "/research-portal", icon: Search },
   { id: "offer-lab", label: "Offer Lab", href: "/offer-lab", icon: Target, shortcut: "⌘2" },
   { id: "creative-factory", label: "Creative Factory", href: "/creative-factory", icon: Sparkles, shortcut: "⌘3" },
   { id: "campaign-hq", label: "Campaign HQ", href: "/campaign-hq", icon: Map, shortcut: "⌘4" },
   { id: "ad-coach", label: "Ad Coach", href: "/ad-coach", icon: MessageSquare, shortcut: "⌘5" },
-  { id: "iteration-lab", label: "Iteration Lab", href: "/iteration-lab", icon: RefreshCw, shortcut: "⌘6" },
 ];
 
 function getRecent(): string[] {

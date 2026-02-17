@@ -16,13 +16,11 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LaunchPlanRouteSync } from "@/components/LaunchPlanRouteSync";
 
 const Dashboard = lazy(() => import("@/pages/dashboard"));
+const ResearchPortal = lazy(() => import("@/pages/research-portal"));
 const OfferLab = lazy(() => import("@/pages/offer-lab"));
 const CreativeFactory = lazy(() => import("@/pages/creative-factory"));
 const CampaignHQ = lazy(() => import("@/pages/campaign-hq"));
 const AdCoach = lazy(() => import("@/pages/ad-coach"));
-const IterationLab = lazy(() => import("@/pages/iteration-lab"));
-const AITools = lazy(() => import("@/pages/ai-tools"));
-const VideoStudio = lazy(() => import("@/pages/video-studio"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 const PageFallback = () => (
@@ -35,13 +33,11 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/research-portal" component={ResearchPortal} />
       <Route path="/offer-lab" component={OfferLab} />
       <Route path="/creative-factory" component={CreativeFactory} />
       <Route path="/campaign-hq" component={CampaignHQ} />
       <Route path="/ad-coach" component={AdCoach} />
-      <Route path="/iteration-lab" component={IterationLab} />
-      <Route path="/ai-tools" component={AITools} />
-      <Route path="/video-studio" component={VideoStudio} />
       <Route component={NotFound} />
     </Switch>
   );

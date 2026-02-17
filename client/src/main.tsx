@@ -4,7 +4,7 @@ import App from "./App";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
-  <ThemeProvider defaultTheme="light" attribute="class" storageKey="clinic-growth-theme">
+  <ThemeProvider defaultTheme="dark" attribute="class" storageKey="clinic-growth-theme">
     <App />
   </ThemeProvider>
 );

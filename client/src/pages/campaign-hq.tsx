@@ -31,7 +31,7 @@ import { LAUNCH_PLAN_STEPS } from "@/lib/launch-plan-steps";
 function DeploymentStep({ step, index, checked, onToggle }: { step: any; index: number; checked: boolean; onToggle: () => void }) {
   return (
     <div
-      className={`flex items-start gap-3 p-4 rounded-md transition-colors ${checked ? "bg-primary/10" : "bg-slate-50 dark:bg-slate-800/30"}`}
+      className={`flex items-start gap-3 p-4 rounded-md transition-colors ${checked ? "bg-primary/10" : "bg-muted/50"}`}
       data-testid={`deployment-step-${index}`}
     >
       <Checkbox
@@ -207,7 +207,7 @@ export default function CampaignHQ() {
                   {expandedPhase === pi && (
                     <div className="px-5 pb-5 space-y-3">
                       {(phase.ad_sets || []).map((adSet: any, ai: number) => (
-                        <div key={ai} className="bg-slate-50 dark:bg-slate-800/30 rounded-md p-4">
+                        <div key={ai} className="bg-muted/50 rounded-md p-4">
                           <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                             <p className="text-sm font-medium text-foreground">{adSet.name}</p>
                             <Badge variant="outline" className="text-xs">{adSet.budget}/day</Badge>
@@ -243,7 +243,7 @@ export default function CampaignHQ() {
                 <h2 className="text-lg font-bold text-foreground">Deployment Checklist</h2>
                 <span className="text-sm text-muted-foreground">{completedSteps}/{totalSteps} completed</span>
               </div>
-              <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-4">
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden mb-4">
                 <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0}%` }} />
               </div>
               <div className="space-y-2">

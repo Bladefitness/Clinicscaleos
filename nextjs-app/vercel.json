@@ -1,0 +1,22 @@
+{
+  "framework": "nextjs",
+  "functions": {
+    "app/api/generate/route.ts": { "maxDuration": 120 },
+    "app/api/tools/animate-image/route.ts": { "maxDuration": 120 },
+    "app/api/video-studio/*/route.ts": { "maxDuration": 120 },
+    "app/api/video-studio/transcribe/route.ts": { "maxDuration": 120 },
+    "app/api/video-studio/director/route.ts": { "maxDuration": 120 },
+    "app/api/video-studio/jobs/remove-dead-air/route.ts": { "maxDuration": 120 },
+    "app/api/offers/score/route.ts": { "maxDuration": 60 },
+    "app/api/campaigns/blueprint/route.ts": { "maxDuration": 60 },
+    "app/api/coach/chat/route.ts": { "maxDuration": 60 },
+    "app/api/iterations/analyze/route.ts": { "maxDuration": 60 },
+    "app/api/avatars/generate/route.ts": { "maxDuration": 60 },
+    "app/api/ad-copier/replicate/route.ts": { "maxDuration": 60 },
+    "app/api/tools/headline-analyze/route.ts": { "maxDuration": 60 },
+    "app/api/tools/ad-copy/route.ts": { "maxDuration": 60 },
+    "app/api/tools/improve-creative/route.ts": { "maxDuration": 60 },
+    "app/api/generate-image/route.ts": { "maxDuration": 60 },
+    "app/api/build-image-prompt/route.ts": { "maxDuration": 60 }
+  }
+}

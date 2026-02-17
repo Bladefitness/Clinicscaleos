@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 
 console.log("[Clinic Growth OS] load-env running (first boot log)");
 
-// Catch-all so crashes during module loading are always visible in Railway logs
+// Catch-all so crashes during module loading are always visible in deployment logs
 process.on("uncaughtException", (err) => {
     console.error("[Clinic Growth OS] UNCAUGHT EXCEPTION:", err);
     process.exit(1);

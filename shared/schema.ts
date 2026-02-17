@@ -168,6 +168,40 @@ export const renders = pgTable("renders", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Research Portal: pain point research sessions
+export const researchSessions = pgTable("research_sessions", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  query: text("query").notNull(),
+  clinicType: text("clinic_type"),
+  service: text("service"),
+  source: varchar("source", { length: 20 }).default("web_search"),
+  status: varchar("status", { length: 20 }).default("pending"),
+  results: jsonb("results"),
+  rawSources: jsonb("raw_sources"),
+  synthesis: jsonb("synthesis"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Research Portal: saved competitor ads from Facebook Ad Library
+export const savedAds = pgTable("saved_ads", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  adId: text("ad_id"),
+  advertiserName: text("advertiser_name").notNull(),
+  pageId: text("page_id"),
+  adBody: text("ad_body"),
+  adTitle: text("ad_title"),
+  adCreativeUrl: text("ad_creative_url"),
+  adSnapshotUrl: text("ad_snapshot_url"),
+  platform: text("platform"),
+  startDate: date("start_date"),
+  isActive: boolean("is_active"),
+  category: text("category"),
+  notes: text("notes"),
+  tags: text("tags").array(),
+  clinicType: text("clinic_type"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Agent chat history per project
 export const agentMessages = pgTable("agent_messages", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -230,6 +264,29 @@ export type Render = typeof renders.$inferSelect;
 export const insertAgentMessageSchema = createInsertSchema(agentMessages).omit({ id: true, createdAt: true });
 export type InsertAgentMessage = z.infer<typeof insertAgentMessageSchema>;
 export type AgentMessage = typeof agentMessages.$inferSelect;
+
+export const insertResearchSessionSchema = createInsertSchema(researchSessions).omit({ id: true, createdAt: true, status: true, results: true, rawSources: true, synthesis: true });
+export type InsertResearchSession = z.infer<typeof insertResearchSessionSchema>;
+export type ResearchSession = typeof researchSessions.$inferSelect;
+
+export const insertSavedAdSchema = createInsertSchema(savedAds).omit({ id: true, createdAt: true });
+export type InsertSavedAd = z.infer<typeof insertSavedAdSchema>;
+export type SavedAd = typeof savedAds.$inferSelect;
+
+export const painPointSearchRequestSchema = z.object({
+  query: z.string().min(1, "Search query is required"),
+  clinicType: z.string().optional().default(""),
+  service: z.string().optional().default(""),
+});
+export type PainPointSearchRequest = z.infer<typeof painPointSearchRequestSchema>;
+
+export const adLibrarySearchRequestSchema = z.object({
+  searchTerms: z.string().min(1, "Search terms are required"),
+  country: z.string().optional().default("US"),
+  adType: z.string().optional().default("all"),
+  activeStatus: z.string().optional().default("active"),
+});
+export type AdLibrarySearchRequest = z.infer<typeof adLibrarySearchRequestSchema>;
 
 export const offerScoreRequestSchema = z.object({
   service: z.string().min(1),

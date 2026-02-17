@@ -11,3 +11,7 @@ rest-express@*
 server/public
 vite.config.ts.*
 *.tar.gz
+# Bundled Vercel API function
+api/index.mjs
+.omc/
+.vercel/

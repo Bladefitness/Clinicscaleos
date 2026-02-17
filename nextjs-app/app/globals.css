@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+/* ============================================================
+   DoctaBlade Design System — globals.css
+   Dark futuristic | Navy + Gold + Blue Glow | Premium aesthetic
+   Inspired by Health Pro CEO Academy branding
+   ============================================================ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-background: var(--sidebar-background);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  /* ── Core palette — Dark Navy ── */
+  --background: #0a1628;
+  --foreground: #e2e8f0;
+
+  --card: #111d35;
+  --card-foreground: #e2e8f0;
+
+  --popover: #111d35;
+  --popover-foreground: #e2e8f0;
+
+  --primary: #c8a04a;
+  --primary-foreground: #0a1628;
+
+  --secondary: #162040;
+  --secondary-foreground: #94a3b8;
+
+  --muted: #162040;
+  --muted-foreground: #64748b;
+
+  --accent: #1a2d50;
+  --accent-foreground: #38bdf8;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --border: rgba(56, 189, 248, 0.12);
+  --input: rgba(56, 189, 248, 0.15);
+  --ring: #c8a04a;
+
+  /* ── Chart palette — unified blue/gold ── */
+  --chart-1: #38bdf8;
+  --chart-2: #c8a04a;
+  --chart-3: #60a5fa;
+  --chart-4: #a78bfa;
+  --chart-5: #34d399;
+
+  /* ── Radius ── */
+  --radius: 0.75rem;
+
+  /* ── Sidebar (deep navy) ── */
+  --sidebar-background: #0c1425;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-primary: #c8a04a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(56, 189, 248, 0.08);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(56, 189, 248, 0.08);
+  --sidebar-ring: #c8a04a;
+
+  /* ── Premium tokens ── */
+  --db-gold: #c8a04a;
+  --db-gold-light: #d4af5c;
+  --db-gold-dark: #a07830;
+  --db-gold-muted: #92400e;
+
+  --db-navy: #0a1628;
+  --db-navy-light: #111d35;
+  --db-navy-surface: #162040;
+  --db-navy-elevated: #1a2d50;
+
+  --db-glow-blue: #38bdf8;
+  --db-glow-blue-muted: rgba(56, 189, 248, 0.15);
+  --db-glow-blue-strong: rgba(56, 189, 248, 0.3);
+  --db-glow-gold: rgba(200, 160, 74, 0.3);
+
+  --db-gradient-gold: linear-gradient(135deg, #c8a04a, #a07830);
+  --db-gradient-gold-hover: linear-gradient(135deg, #d4af5c, #c8a04a);
+  --db-gradient-navy: linear-gradient(135deg, #0c1425, #162040);
+  --db-gradient-text: linear-gradient(to right, #38bdf8, #60a5fa);
+  --db-gradient-text-gold: linear-gradient(to right, #c8a04a, #d4af5c);
+  --db-gradient-premium: linear-gradient(135deg, #1a2d50, #0a1628);
+
+  --db-glass-bg: rgba(17, 29, 53, 0.7);
+  --db-glass-border: rgba(56, 189, 248, 0.1);
+  --db-glass-strong-bg: rgba(17, 29, 53, 0.85);
+
+  --db-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --db-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --db-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --db-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --db-shadow-card: 0 0 0 1px rgba(56, 189, 248, 0.06), 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+  --db-shadow-glow: 0 0 20px rgba(56, 189, 248, 0.15), 0 0 40px rgba(56, 189, 248, 0.05);
+  --db-shadow-glow-gold: 0 0 20px rgba(200, 160, 74, 0.2), 0 0 40px rgba(200, 160, 74, 0.05);
+
+  --db-text-xs: 0.75rem;
+  --db-leading-xs: 1rem;
+  --db-text-sm: 0.875rem;
+  --db-leading-sm: 1.25rem;
+  --db-text-base: 1rem;
+  --db-leading-base: 1.5rem;
+  --db-text-lg: 1.125rem;
+  --db-leading-lg: 1.75rem;
+  --db-text-xl: 1.25rem;
+  --db-leading-xl: 1.75rem;
+  --db-text-2xl: 1.5rem;
+  --db-leading-2xl: 2rem;
+  --db-text-3xl: 1.875rem;
+  --db-leading-3xl: 2.25rem;
+  --db-text-4xl: 2.25rem;
+  --db-leading-4xl: 2.5rem;
+
+  --db-duration-fast: 150ms;
+  --db-duration-normal: 250ms;
+  --db-duration-slow: 400ms;
+  --db-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --db-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --db-focus-ring: 0 0 0 2px #0a1628, 0 0 0 4px #c8a04a;
+
+  --db-input-error-border: #f87171;
+  --db-input-error-ring: rgba(239, 68, 68, 0.2);
+  --db-input-success-border: #34d399;
+  --db-input-success-ring: rgba(16, 185, 129, 0.2);
+
+  --db-success: #34d399;
+  --db-warning: #fbbf24;
+  --db-error: #f87171;
+  --db-info: #38bdf8;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  *:focus-visible {
+    outline: none;
+    box-shadow: var(--db-focus-ring);
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background-color: rgba(56, 189, 248, 0.3);
+    color: #ffffff;
+  }
+}
+
+@layer utilities {
+  .glass {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    background: var(--db-glass-bg);
+    border: 1px solid var(--db-glass-border);
+  }
+
+  .glass-strong {
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    background: var(--db-glass-strong-bg);
+    border: 1px solid var(--db-glass-border);
+  }
+
+  .gradient-text {
+    background: var(--db-gradient-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .gradient-text-gold {
+    background: var(--db-gradient-text-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .glow-blue {
+    box-shadow: var(--db-shadow-glow);
+  }
+
+  .glow-gold {
+    box-shadow: var(--db-shadow-glow-gold);
+  }
+
+  .glow-border {
+    border: 1px solid rgba(56, 189, 248, 0.15);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.08), inset 0 0 15px rgba(56, 189, 248, 0.03);
+  }
+
+  .glow-border-gold {
+    border: 1px solid rgba(200, 160, 74, 0.2);
+    box-shadow: 0 0 15px rgba(200, 160, 74, 0.1), inset 0 0 15px rgba(200, 160, 74, 0.03);
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, #c8a04a, #a07830);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(200, 160, 74, 0.3), 0 0 20px rgba(200, 160, 74, 0.1);
+    transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .btn-gold:hover {
+    background: linear-gradient(135deg, #d4af5c, #c8a04a);
+    box-shadow: 0 4px 16px rgba(200, 160, 74, 0.4), 0 0 30px rgba(200, 160, 74, 0.15);
+    transform: translateY(-1px);
+  }
+
+  .btn-gold:active {
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #162040 25%, #1a2d50 37%, #162040 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.1); }
+  50% { box-shadow: 0 0 25px rgba(56, 189, 248, 0.2); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}

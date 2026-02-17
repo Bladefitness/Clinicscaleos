@@ -49,10 +49,10 @@ export function PipelineView({
               </p>
             )}
           </div>
-          <span className="text-slate-300 dark:text-slate-600 sm:hidden">→</span>
+          <span className="text-muted-foreground/50 sm:hidden">→</span>
         </div>
 
-        <span className="hidden sm:inline text-slate-300 dark:text-slate-600 self-center flex-shrink-0">→</span>
+        <span className="hidden sm:inline text-muted-foreground/50 self-center flex-shrink-0">→</span>
 
         {/* Research */}
         <div className="flex items-start gap-2 min-w-0 sm:flex-1">
@@ -65,10 +65,10 @@ export function PipelineView({
               {researchSummary || "—"}
             </p>
           </div>
-          <span className="text-slate-300 dark:text-slate-600 sm:hidden">→</span>
+          <span className="text-muted-foreground/50 sm:hidden">→</span>
         </div>
 
-        <span className="hidden sm:inline text-slate-300 dark:text-slate-600 self-center flex-shrink-0">→</span>
+        <span className="hidden sm:inline text-muted-foreground/50 self-center flex-shrink-0">→</span>
 
         {/* Avatars */}
         <div className="flex items-start gap-2 min-w-0 sm:flex-1">
@@ -81,10 +81,10 @@ export function PipelineView({
               {avatars.length > 0 ? avatars.map((a) => a.name).join(", ") : "—"}
             </p>
           </div>
-          <span className="text-slate-300 dark:text-slate-600 sm:hidden">→</span>
+          <span className="text-muted-foreground/50 sm:hidden">→</span>
         </div>
 
-        <span className="hidden sm:inline text-slate-300 dark:text-slate-600 self-center flex-shrink-0">→</span>
+        <span className="hidden sm:inline text-muted-foreground/50 self-center flex-shrink-0">→</span>
 
         {/* Creatives */}
         <div className="flex items-start gap-2 min-w-0 sm:flex-1">
@@ -109,10 +109,10 @@ export function PipelineView({
               )}
             </div>
           </div>
-          <span className="text-slate-300 dark:text-slate-600 sm:hidden">→</span>
+          <span className="text-muted-foreground/50 sm:hidden">→</span>
         </div>
 
-        <span className="hidden sm:inline text-slate-300 dark:text-slate-600 self-center flex-shrink-0">→</span>
+        <span className="hidden sm:inline text-muted-foreground/50 self-center flex-shrink-0">→</span>
 
         {/* Campaign */}
         <div className="flex items-start gap-2 min-w-0 sm:flex-1">

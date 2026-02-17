@@ -3,6 +3,7 @@ import { db } from "./db";
 import {
   offers, avatars, creatives, campaigns, metricsSnapshots, coachingSessions, iterations, creativeRuns,
   videoProjects, videoAssets, timelineVersions, renders, agentMessages,
+  researchSessions, savedAds,
   type InsertOffer, type Offer,
   type InsertAvatar, type Avatar,
   type InsertCreative, type Creative,
@@ -16,6 +17,8 @@ import {
   type InsertTimelineVersion, type TimelineVersion,
   type InsertRender, type Render,
   type InsertAgentMessage, type AgentMessage,
+  type InsertResearchSession, type ResearchSession,
+  type InsertSavedAd, type SavedAd,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -69,6 +72,18 @@ export interface IStorage {
 
   createAgentMessage(data: InsertAgentMessage): Promise<AgentMessage>;
   getAgentMessages(projectId: string, limit?: number): Promise<AgentMessage[]>;
+
+  createResearchSession(data: InsertResearchSession): Promise<ResearchSession>;
+  getResearchSessions(clinicType?: string, limit?: number): Promise<ResearchSession[]>;
+  getResearchSession(id: string): Promise<ResearchSession | undefined>;
+  updateResearchSession(id: string, data: Partial<ResearchSession>): Promise<ResearchSession | undefined>;
+  deleteResearchSession(id: string): Promise<void>;
+
+  createSavedAd(data: InsertSavedAd): Promise<SavedAd>;
+  getSavedAds(clinicType?: string): Promise<SavedAd[]>;
+  getSavedAd(id: string): Promise<SavedAd | undefined>;
+  updateSavedAd(id: string, data: Partial<Pick<SavedAd, "notes" | "tags">>): Promise<SavedAd | undefined>;
+  deleteSavedAd(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -256,6 +271,58 @@ export class DatabaseStorage implements IStorage {
 
   async getAgentMessages(projectId: string, limit = 100): Promise<AgentMessage[]> {
     return db.select().from(agentMessages).where(eq(agentMessages.projectId, projectId)).orderBy(desc(agentMessages.createdAt)).limit(limit);
+  }
+
+  async createResearchSession(data: InsertResearchSession): Promise<ResearchSession> {
+    const [result] = await db.insert(researchSessions).values(data).returning();
+    return result;
+  }
+
+  async getResearchSessions(clinicType?: string, limit = 20): Promise<ResearchSession[]> {
+    if (clinicType) {
+      return db.select().from(researchSessions).where(eq(researchSessions.clinicType, clinicType)).orderBy(desc(researchSessions.createdAt)).limit(limit);
+    }
+    return db.select().from(researchSessions).orderBy(desc(researchSessions.createdAt)).limit(limit);
+  }
+
+  async getResearchSession(id: string): Promise<ResearchSession | undefined> {
+    const [result] = await db.select().from(researchSessions).where(eq(researchSessions.id, id));
+    return result;
+  }
+
+  async updateResearchSession(id: string, data: Partial<ResearchSession>): Promise<ResearchSession | undefined> {
+    const [result] = await db.update(researchSessions).set(data).where(eq(researchSessions.id, id)).returning();
+    return result;
+  }
+
+  async deleteResearchSession(id: string): Promise<void> {
+    await db.delete(researchSessions).where(eq(researchSessions.id, id));
+  }
+
+  async createSavedAd(data: InsertSavedAd): Promise<SavedAd> {
+    const [result] = await db.insert(savedAds).values(data).returning();
+    return result;
+  }
+
+  async getSavedAds(clinicType?: string): Promise<SavedAd[]> {
+    if (clinicType) {
+      return db.select().from(savedAds).where(eq(savedAds.clinicType, clinicType)).orderBy(desc(savedAds.createdAt));
+    }
+    return db.select().from(savedAds).orderBy(desc(savedAds.createdAt));
+  }
+
+  async getSavedAd(id: string): Promise<SavedAd | undefined> {
+    const [result] = await db.select().from(savedAds).where(eq(savedAds.id, id));
+    return result;
+  }
+
+  async updateSavedAd(id: string, data: Partial<Pick<SavedAd, "notes" | "tags">>): Promise<SavedAd | undefined> {
+    const [result] = await db.update(savedAds).set(data).where(eq(savedAds.id, id)).returning();
+    return result;
+  }
+
+  async deleteSavedAd(id: string): Promise<void> {
+    await db.delete(savedAds).where(eq(savedAds.id, id));
   }
 }
 

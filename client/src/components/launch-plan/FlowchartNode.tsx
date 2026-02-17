@@ -50,14 +50,14 @@ export function FlowchartNode({
   const linkHref = step.href ? `${step.href}${step.queryOrHash || ""}` : null;
 
   return (
-    <div className={cn("flex flex-col", depth > 0 && "ml-4 border-l-2 border-slate-200 dark:border-slate-700 pl-4")}>
+    <div className={cn("flex flex-col", depth > 0 && "ml-4 border-l-2 border-border pl-4")}>
       <button
         type="button"
         onClick={() => onToggle(step.id)}
         className={cn(
           "flex items-center gap-3 w-full text-left rounded-lg p-3 transition-colors",
-          "hover:bg-slate-100 dark:hover:bg-slate-800/50",
-          isExpanded && "bg-slate-100 dark:bg-slate-800/50",
+          "hover:bg-muted/50",
+          isExpanded && "bg-muted/50",
           status === "current" && "ring-2 ring-primary/50 bg-primary/5 dark:bg-primary/10",
           status === "completed" && "opacity-90",
           status === "pending" && currentStepId && "opacity-75"
@@ -69,12 +69,12 @@ export function FlowchartNode({
         <span
           className={cn(
             "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-            isIntro && "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400",
-            step.module === "M1" && "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
-            step.module === "M2" && "bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400",
-            step.module === "M3" && "bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400",
-            step.module === "M4" && "bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400",
-            step.module === "M5" && "bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400"
+            isIntro && "bg-primary/10 text-primary",
+            step.module === "M1" && "bg-emerald-500/10 text-emerald-400",
+            step.module === "M2" && "bg-violet-500/10 text-violet-400",
+            step.module === "M3" && "bg-cyan-500/10 text-cyan-400",
+            step.module === "M4" && "bg-primary/10 text-primary",
+            step.module === "M5" && "bg-rose-500/10 text-rose-400"
           )}
         >
           {status === "completed" ? (
@@ -85,9 +85,9 @@ export function FlowchartNode({
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-medium text-slate-900 dark:text-slate-100">{step.title}</span>
+            <span className="font-medium text-foreground">{step.title}</span>
             {step.module && (
-              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400">
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                 {step.module}
               </span>
             )}
@@ -97,12 +97,12 @@ export function FlowchartNode({
           </div>
         </div>
         {hasChildren && (
-          <span className="text-slate-400">
+          <span className="text-muted-foreground">
             {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </span>
         )}
         {!hasChildren && (
-          <span className="text-slate-400">
+          <span className="text-muted-foreground">
             {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </span>
         )}
@@ -111,24 +111,24 @@ export function FlowchartNode({
       {isExpanded && (
         <div
           id={isIntro ? "intro-content" : `step-content-${step.id}`}
-          className="mt-2 mb-4 pl-11 pr-2 py-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800"
+          className="mt-2 mb-4 pl-11 pr-2 py-3 rounded-lg bg-muted/30 border border-border"
           role="region"
           aria-label={`Details for ${step.title}`}
         >
-          <p className="text-sm text-slate-700 dark:text-slate-300 mb-3">{step.shortWhat}</p>
+          <p className="text-sm text-foreground mb-3">{step.shortWhat}</p>
           {step.whyBullets && step.whyBullets.length > 0 && (
             <div className="mb-3">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
                 Why this matters
               </p>
-              <ul className="list-disc list-inside space-y-1 text-sm text-slate-600 dark:text-slate-400">
+              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                 {step.whyBullets.map((b, i) => (
                   <li key={i}>{b}</li>
                 ))}
               </ul>
             </div>
           )}
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+          <p className="text-xs text-muted-foreground mb-3">
             <span className="font-medium">Next:</span> {step.nextStep}
           </p>
           <div className="flex flex-wrap gap-2">
